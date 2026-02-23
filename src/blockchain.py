@@ -1,12 +1,14 @@
 # Initializing our blockchain list
 blockchain = []
 
-def get_last_blockchain_value() -> list:
+def get_last_blockchain_value() -> list[float] | None:
     """ Returns the last value of the current blockchain. """
+    if len(blockchain) < 1:
+        return None
     return blockchain[-1]
 
 
-def add_value(transaction_amount:float, last_transaction_value:list=[1]) -> None:
+def add_value(transaction_amount:float, last_transaction_value:list[float]|None) -> None:
     """
     Append a new value as well as the last transaction value to the blockchain.
 
@@ -14,6 +16,8 @@ def add_value(transaction_amount:float, last_transaction_value:list=[1]) -> None
         :transaction_amount: The amount that should be added
         :last_transaction_value: The last blockchain transaction (default [1])
     """
+    if last_transaction_value == None:
+        last_transaction_value = [1]
     blockchain.append([last_transaction_value, transaction_amount])
 
 
@@ -29,8 +33,6 @@ def print_blockchain_elements() -> None:
     for block in blockchain:
         print('Outputting block...')
         print(block)
-
-add_value(get_transaction_value())
 
 while True:
     print('Please choose')
