@@ -21,9 +21,14 @@ def get_user_input() -> float:
     """ Returns the input of the user (a new transaction amount) as a float. """
     return float(input('Your transaction amount please: '))
 
-
 add_value(get_user_input())
-add_value(last_transaction_value=get_last_blockchain_value(), transaction_amount=get_user_input())
-add_value(last_transaction_value=get_last_blockchain_value(), transaction_amount=get_user_input())
 
-print(blockchain)
+while True:
+    add_value(last_transaction_value=get_last_blockchain_value(), transaction_amount=get_user_input())
+
+    # Output the blockchain list in the console
+    for block in blockchain:
+        print('Outputting block...')
+        print(block)
+
+print('Done!')

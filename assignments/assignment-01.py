@@ -8,7 +8,7 @@ def print_data() -> None:
 
 print_data()
 # 3) Create a function which prints ANY data (two arguments) as one string
-def print_args(arg1: str, arg2: str) -> None:
+def print_args(arg1: object, arg2: object) -> None:
     print(f'{arg1} - {arg2}')
 
 print_args(age, name)
