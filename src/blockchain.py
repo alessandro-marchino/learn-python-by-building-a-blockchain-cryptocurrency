@@ -37,11 +37,9 @@ def print_blockchain_elements() -> None:
         print('-' * 20)
 
 def verify_chain():
-    block_index = 0
-    for block in blockchain:
-        if block_index > 0 and block[0] != blockchain[block_index - 1]:
+    for block_index in range(len(blockchain)):
+        if block_index > 0 and blockchain[block_index][0] != blockchain[block_index - 1]:
             return False
-        block_index += 1
     return True
 
 waiting_for_input = True
@@ -66,6 +64,7 @@ while waiting_for_input:
         print('Choice was invalid, please pick a value from the list!')
 
     if not verify_chain():
+        print_blockchain_elements()
         print('Invalid blockchain!')
         waiting_for_input = False
 else:
