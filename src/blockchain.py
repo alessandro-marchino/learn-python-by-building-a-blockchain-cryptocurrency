@@ -43,7 +43,7 @@ while True:
     elif user_choice == '2':
         print_blockchain_elements()
     elif user_choice == 'q':
-        pass
+        break
     else:
         print('Choice was invalid, please pick a value from the list!')
 
