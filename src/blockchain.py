@@ -42,7 +42,9 @@ def verify_chain():
         block_index += 1
     return True
 
-while True:
+waiting_for_input = True
+
+while waiting_for_input:
     print('Please choose')
     print('1: Add a new transaction value')
     print('2: Output the blockchain blocks')
@@ -54,7 +56,7 @@ while True:
     elif user_choice == '2':
         print_blockchain_elements()
     elif user_choice == 'q':
-        break
+        waiting_for_input = False
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             blockchain[0] = [2]
@@ -63,6 +65,6 @@ while True:
 
     if not verify_chain():
         print('Invalid blockchain!')
-        break
+        waiting_for_input = False
 
 print('Done!')
