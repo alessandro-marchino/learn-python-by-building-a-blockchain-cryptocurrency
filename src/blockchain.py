@@ -10,7 +10,7 @@ def get_last_blockchain_value() -> list[float] | None:
     return blockchain[-1]
 
 
-def add_transaction(sender: str, recipient: str, amount:float=1.0) -> None:
+def add_transaction(recipient: str, sender:str=owner, amount:float=1.0) -> None:
     """
     Append a new value as well as the last transaction value to the blockchain.
 
@@ -62,7 +62,9 @@ while waiting_for_input:
     user_choice = get_user_choice()
     if user_choice == '1':
         tx_data = get_transaction_value()
-        # add_transaction()
+        recipient, amount = tx_data
+        add_transaction(recipient, amount=amount)
+        print(open_transactions)
     elif user_choice == '2':
         print_blockchain_elements()
     elif user_choice == 'q':
