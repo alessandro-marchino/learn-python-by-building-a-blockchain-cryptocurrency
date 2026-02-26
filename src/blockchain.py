@@ -1,5 +1,7 @@
 # Initializing our blockchain list
 blockchain = []
+open_transactions = []
+owner = 'Ale'
 
 def get_last_blockchain_value() -> list[float] | None:
     """ Returns the last value of the current blockchain. """
@@ -8,23 +10,30 @@ def get_last_blockchain_value() -> list[float] | None:
     return blockchain[-1]
 
 
-def add_value(transaction_amount:float, last_transaction_value:list[float]|None) -> None:
+def add_transaction(sender: str, recipient: str, amount:float=1.0) -> None:
     """
     Append a new value as well as the last transaction value to the blockchain.
 
     Arguments:
-        :transaction_amount: The amount that should be added
-        :last_transaction_value: The last blockchain transaction (default [1])
+        :sender: The sender of the transaction
+        :recepient: The recipient of the transaction
+        :amount: The amount sent
     """
-    if last_transaction_value == None:
-        last_transaction_value = [1]
-    blockchain.append([last_transaction_value, transaction_amount])
+    transaction = {
+        'sender': sender,
+        'recipient': recipient,
+        'amount': amount
+    }
+    open_transactions.append(transaction)
 
+def mine_block():
+    pass
 
-def get_transaction_value() -> float:
+def get_transaction_value() -> tuple[str, float]:
     """ Returns the input of the user (a new transaction amount) as a float. """
+    tx_recipient = input('Enter the recipient of the transaction: ')
     user_input = input('Your transaction amount please: ')
-    return float(user_input)
+    return tx_recipient, float(user_input)
 
 def get_user_choice() -> str:
     return input('Your choice: ')
@@ -52,7 +61,8 @@ while waiting_for_input:
     print('q: Exit')
     user_choice = get_user_choice()
     if user_choice == '1':
-        add_value(last_transaction_value=get_last_blockchain_value(), transaction_amount=get_transaction_value())
+        tx_data = get_transaction_value()
+        # add_transaction()
     elif user_choice == '2':
         print_blockchain_elements()
     elif user_choice == 'q':
