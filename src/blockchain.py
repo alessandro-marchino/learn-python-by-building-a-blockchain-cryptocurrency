@@ -8,6 +8,19 @@ participants = {owner}
 def hash_block(block: dict) -> str:
     return '-'.join([ str(block[key]) for key in block ])
 
+def get_balance(participant: str)-> float:
+    tx_sender = [ [ tx['amount'] for tx in block['transactions'] if tx['sender'] == participant ] for block in blockchain ]
+    tx_received = [ [ tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant ] for block in blockchain ]
+    amount_sent = 0.0
+    for tx in tx_sender:
+        for amount in tx:
+            amount_sent += amount
+    amount_received = 0.0
+    for tx in tx_received:
+        for amount in tx:
+            amount_received += amount
+    return amount_received - amount_sent
+
 def get_last_blockchain_value() -> dict[str, dict]:
     """
     Gets the last block of the blockchain.
@@ -106,6 +119,7 @@ while waiting_for_input:
     else:
         print('Choice was invalid, please pick a value from the list!')
 
+    print(get_balance(owner))
     if not verify_chain():
         print_blockchain_elements()
         print('Invalid blockchain!')
