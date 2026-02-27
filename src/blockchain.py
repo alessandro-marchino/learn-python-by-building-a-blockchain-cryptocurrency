@@ -33,10 +33,7 @@ def mine_block():
     """
     global open_transactions
     last_block = blockchain[-1]
-    hashed_block = ''
-    for key in last_block:
-        value = last_block[key]
-        hashed_block += str(value)
+    hashed_block = '-'.join([ str(last_block[key]) for key in last_block ])
     block = {
         'previous_hash': hashed_block,
         'index': len(blockchain),
