@@ -4,6 +4,9 @@ blockchain = [genesis_block]
 open_transactions = []
 owner = 'Ale'
 
+def hash_block(block: dict) -> str:
+    return '-'.join([ str(block[key]) for key in block ])
+
 def get_last_blockchain_value() -> dict[str, dict]:
     """
     Gets the last block of the blockchain.
@@ -33,9 +36,8 @@ def mine_block():
     """
     global open_transactions
     last_block = blockchain[-1]
-    hashed_block = '-'.join([ str(last_block[key]) for key in last_block ])
     block = {
-        'previous_hash': hashed_block,
+        'previous_hash': hash_block(last_block),
         'index': len(blockchain),
         'transactions': open_transactions
     }
@@ -62,9 +64,9 @@ def print_blockchain_elements() -> None:
         print('-' * 20)
 
 def verify_chain():
-    # for block_index in range(len(blockchain)):
-    #     if block_index > 0 and blockchain[block_index][0] != blockchain[block_index - 1]:
-    #         return False
+    for (index, block) in enumerate(blockchain):
+        if index > 0 and block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
     return True
 
 waiting_for_input = True
@@ -90,7 +92,11 @@ while waiting_for_input:
         waiting_for_input = False
     elif user_choice == 'h':
         if len(blockchain) >= 1:
-            blockchain[0] = {}
+            blockchain[0] = {
+                'previous_hash': '',
+                'index': 0,
+                'transactions': [ { 'sender': 'Chris', 'recipient': 'Ale', 'amount': 100.0 } ]
+            }
     else:
         print('Choice was invalid, please pick a value from the list!')
 
