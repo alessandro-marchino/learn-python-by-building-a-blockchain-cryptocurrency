@@ -56,26 +56,25 @@ def add_transaction(recipient: str, sender:str=owner, amount:float=1.0) -> bool:
     participants.add(recipient)
     return True
 
-def mine_block():
+def mine_block() -> bool:
     """
     Mines a new blockchain block.
     """
-    global open_transactions
     last_block = blockchain[-1]
     reward_transaction = {
         'sender': 'MINING',
         'recipient': owner,
         'amount': MINING_REWARD
     }
-    open_transactions.append(reward_transaction)
+    copied_transactions = open_transactions[:]
+    copied_transactions.append(reward_transaction)
     block = {
         'previous_hash': hash_block(last_block),
         'index': len(blockchain),
-        'transactions': open_transactions
+        'transactions': copied_transactions
     }
     blockchain.append(block)
-    open_transactions = []
-    pass
+    return True
 
 def get_transaction_value() -> tuple[str, float]:
     """ Returns the input of the user (a transaction recipient and amount) as a tuple. """
@@ -120,7 +119,8 @@ while waiting_for_input:
         else:
             print('Transaction failed')
     elif user_choice == '2':
-        mine_block()
+        if mine_block():
+            open_transactions = []
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
