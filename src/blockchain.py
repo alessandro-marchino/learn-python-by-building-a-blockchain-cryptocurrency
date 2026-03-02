@@ -94,11 +94,14 @@ def print_blockchain_elements() -> None:
     else:
         print('-' * 20)
 
-def verify_chain():
+def verify_chain() -> bool:
     for (index, block) in enumerate(blockchain):
         if index > 0 and block['previous_hash'] != hash_block(blockchain[index - 1]):
             return False
     return True
+
+def verify_transactions() -> bool:
+    return all([ verify_transaction(tx) for tx in open_transactions ])
 
 waiting_for_input = True
 
@@ -108,6 +111,7 @@ while waiting_for_input:
     print('2: Mine a new block')
     print('3: Output the blockchain blocks')
     print('4: Output participants')
+    print('5: Check transaction validity')
     print('h: Manipulate the chain')
     print('q: Exit')
     user_choice = get_user_choice()
@@ -125,6 +129,11 @@ while waiting_for_input:
         print_blockchain_elements()
     elif user_choice == '4':
         print(participants)
+    elif user_choice == '5':
+        if verify_transactions():
+            print('All transactions are valid')
+        else:
+            print('There are invalid transactions')
     elif user_choice == 'q':
         waiting_for_input = False
     elif user_choice == 'h':
