@@ -7,10 +7,10 @@ open_transactions = []
 owner = 'Ale'
 participants = { owner }
 
-def hash_block(block: dict) -> str:
+def hash_block(block:dict) -> str:
     return '-'.join([ str(block[key]) for key in block ])
 
-def get_balance(participant: str)-> float:
+def get_balance(participant:str)-> float:
     tx_sender = [ [ tx['amount'] for tx in block['transactions'] if tx['sender'] == participant ] for block in blockchain ]
     open_tx_sender = [ tx['amount'] for tx in open_transactions ]
     tx_sender.append(open_tx_sender)
@@ -31,11 +31,11 @@ def get_last_blockchain_value() -> dict[str, dict]:
     """
     return blockchain[-1]
 
-def verify_transaction(transaction: dict) -> bool:
+def verify_transaction(transaction:dict) -> bool:
     sender_balance = get_balance(transaction['sender'])
     return sender_balance >= transaction['amount']
 
-def add_transaction(recipient: str, sender:str=owner, amount:float=1.0) -> bool:
+def add_transaction(recipient:str, sender:str=owner, amount:float=1.0) -> bool:
     """
     Append a new value as well as the last transaction value to the blockchain.
 
@@ -146,7 +146,7 @@ while waiting_for_input:
     else:
         print('Choice was invalid, please pick a value from the list!')
 
-    print(get_balance(owner))
+    print(f'Balance for {owner}: {get_balance(owner):6.2f}')
     if not verify_chain():
         print_blockchain_elements()
         print('Invalid blockchain!')
