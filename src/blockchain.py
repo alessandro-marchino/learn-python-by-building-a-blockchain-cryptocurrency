@@ -1,3 +1,5 @@
+import functools
+
 # Initializing our blockchain list
 MINING_REWARD = 10
 
@@ -14,15 +16,11 @@ def get_balance(participant:str)-> float:
     tx_sender = [ [ tx['amount'] for tx in block['transactions'] if tx['sender'] == participant ] for block in blockchain ]
     open_tx_sender = [ tx['amount'] for tx in open_transactions ]
     tx_sender.append(open_tx_sender)
+    amount_sent = functools.reduce(lambda sum, tx: sum + functools.reduce(lambda tx_sum, amount: tx_sum + amount, tx, 0), tx_sender, 0.0)
+
     tx_received = [ [ tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant ] for block in blockchain ]
-    amount_sent = 0.0
-    for tx in tx_sender:
-        for amount in tx:
-            amount_sent += amount
-    amount_received = 0.0
-    for tx in tx_received:
-        for amount in tx:
-            amount_received += amount
+    amount_received = functools.reduce(lambda sum, tx: sum + functools.reduce(lambda tx_sum, amount: tx_sum + amount, tx, 0), tx_received, 0.0)
+
     return amount_received - amount_sent
 
 def get_last_blockchain_value() -> dict[str, dict]:
