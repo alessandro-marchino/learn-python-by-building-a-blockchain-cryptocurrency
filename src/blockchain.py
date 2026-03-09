@@ -4,6 +4,7 @@ from json import dumps
 
 # Initializing our blockchain list
 MINING_REWARD = 10
+MINING_DIFFICULTY = 2
 
 genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [] }
 blockchain = [genesis_block]
@@ -13,6 +14,20 @@ participants = { owner }
 
 def hash_block(block:dict) -> str:
     return sha256(dumps(block).encode()).hexdigest()
+
+def valid_proof(transactions: dict, last_hash:str, proof: int) -> bool:
+    guess = (str(transactions) + str(last_hash) + str(proof)).encode()
+    guess_hash = sha256(guess).hexdigest()
+    print(guess_hash)
+    return guess_hash[0:MINING_DIFFICULTY] == ('0' * MINING_DIFFICULTY)
+
+def proof_of_work() -> int:
+    last_block = blockchain[-1]
+    last_hash = hash_block(last_block)
+    nonce = 0
+    while not valid_proof(last_block, last_hash, nonce):
+        nonce += 1
+    return nonce
 
 def get_balance(participant:str)-> float:
     tx_sender = [ [ tx['amount'] for tx in block['transactions'] if tx['sender'] == participant ] for block in blockchain ]
