@@ -1,7 +1,7 @@
 from functools import reduce
-from hashlib import sha256
-from json import dumps
 from collections import OrderedDict
+
+from hash_util import hash_block, hash_string_256
 
 # Initializing our blockchain list
 MINING_REWARD = 10
@@ -13,12 +13,9 @@ open_transactions = []
 owner = 'Ale'
 participants = { owner }
 
-def hash_block(block:dict) -> str:
-    return sha256(dumps(block, sort_keys=True).encode()).hexdigest()
-
 def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
-    guess = (str(transactions) + str(last_hash) + str(proof)).encode()
-    guess_hash = sha256(guess).hexdigest()
+    guess = str(transactions) + str(last_hash) + str(proof)
+    guess_hash = hash_string_256(guess)
     return guess_hash[0:MINING_DIFFICULTY] == ('0' * MINING_DIFFICULTY)
 
 def proof_of_work() -> int:
