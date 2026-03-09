@@ -6,7 +6,7 @@ from json import dumps
 MINING_REWARD = 10
 MINING_DIFFICULTY = 2
 
-genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [] }
+genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': 100 }
 blockchain = [genesis_block]
 open_transactions = []
 owner = 'Ale'
@@ -15,17 +15,16 @@ participants = { owner }
 def hash_block(block:dict) -> str:
     return sha256(dumps(block).encode()).hexdigest()
 
-def valid_proof(transactions: dict, last_hash:str, proof: int) -> bool:
+def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
     guess = (str(transactions) + str(last_hash) + str(proof)).encode()
     guess_hash = sha256(guess).hexdigest()
-    print(guess_hash)
     return guess_hash[0:MINING_DIFFICULTY] == ('0' * MINING_DIFFICULTY)
 
 def proof_of_work() -> int:
     last_block = blockchain[-1]
     last_hash = hash_block(last_block)
     nonce = 0
-    while not valid_proof(last_block, last_hash, nonce):
+    while not valid_proof(open_transactions, last_hash, nonce):
         nonce += 1
     return nonce
 
@@ -76,6 +75,7 @@ def mine_block() -> bool:
     Mines a new blockchain block.
     """
     last_block = blockchain[-1]
+    proof = proof_of_work()
     reward_transaction = {
         'sender': 'MINING',
         'recipient': owner,
@@ -86,7 +86,8 @@ def mine_block() -> bool:
     block = {
         'previous_hash': hash_block(last_block),
         'index': len(blockchain),
-        'transactions': copied_transactions
+        'transactions': copied_transactions,
+        'proof': proof
     }
     blockchain.append(block)
     return True
@@ -111,7 +112,12 @@ def print_blockchain_elements() -> None:
 
 def verify_chain() -> bool:
     for (index, block) in enumerate(blockchain):
-        if index > 0 and block['previous_hash'] != hash_block(blockchain[index - 1]):
+        if index == 0:
+            continue
+        if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
+        if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
+            print('Proof of work is invalid!')
             return False
     return True
 
