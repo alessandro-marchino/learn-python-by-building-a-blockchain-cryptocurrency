@@ -1,19 +1,20 @@
 from functools import reduce
 from hashlib import sha256
 from json import dumps
+from collections import OrderedDict
 
 # Initializing our blockchain list
 MINING_REWARD = 10
 MINING_DIFFICULTY = 2
 
-genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': 100 }
+genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': -1 }
 blockchain = [genesis_block]
 open_transactions = []
 owner = 'Ale'
 participants = { owner }
 
 def hash_block(block:dict) -> str:
-    return sha256(dumps(block).encode()).hexdigest()
+    return sha256(dumps(block, sort_keys=True).encode()).hexdigest()
 
 def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
     guess = (str(transactions) + str(last_hash) + str(proof)).encode()
@@ -58,11 +59,11 @@ def add_transaction(recipient:str, sender:str=owner, amount:float=1.0) -> bool:
         :recepient: The recipient of the transaction
         :amount: The amount sent
     """
-    transaction = {
-        'sender': sender,
-        'recipient': recipient,
-        'amount': amount
-    }
+    transaction = OrderedDict([
+        ('sender', sender),
+        ('recipient', recipient),
+        ('amount', amount)
+    ])
     if not verify_transaction(transaction):
         return False
     open_transactions.append(transaction)
@@ -76,11 +77,12 @@ def mine_block() -> bool:
     """
     last_block = blockchain[-1]
     proof = proof_of_work()
-    reward_transaction = {
-        'sender': 'MINING',
-        'recipient': owner,
-        'amount': MINING_REWARD
-    }
+    reward_transaction = OrderedDict([
+        ('sender', 'MINING'),
+        ('recipient', owner),
+        ('amount', MINING_REWARD)
+    ])
+
     copied_transactions = open_transactions[:]
     copied_transactions.append(reward_transaction)
     block = {
