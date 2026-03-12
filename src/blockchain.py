@@ -13,6 +13,22 @@ open_transactions = []
 owner = 'Ale'
 participants = { owner }
 
+def load_data():
+    global blockchain
+    global open_transactions
+    with open('blockchain.txt', mode='r') as f:
+        file_content = f.readlines()
+        blockchain = file_content[0]
+        open_transactions = file_content[1]
+
+load_data()
+
+def save_data():
+    with open('blockchain.txt', mode='w') as f:
+        f.write(str(blockchain))
+        f.write('\n')
+        f.write(str(open_transactions))
+
 def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
     guess = str(transactions) + str(last_hash) + str(proof)
     guess_hash = hash_string_256(guess)
@@ -66,6 +82,7 @@ def add_transaction(recipient:str, sender:str=owner, amount:float=1.0) -> bool:
     open_transactions.append(transaction)
     participants.add(sender)
     participants.add(recipient)
+    save_data()
     return True
 
 def mine_block() -> bool:
@@ -89,6 +106,7 @@ def mine_block() -> bool:
         'proof': proof
     }
     blockchain.append(block)
+    save_data()
     return True
 
 def get_transaction_value() -> tuple[str, float]:
