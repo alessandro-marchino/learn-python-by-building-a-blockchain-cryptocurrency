@@ -1,7 +1,6 @@
 from functools import reduce
 from collections import OrderedDict
 from json import dumps, loads
-import pickle
 
 from hash_util import hash_block, hash_string_256
 
@@ -18,20 +17,39 @@ participants = { owner }
 def load_data():
     global blockchain
     global open_transactions
-    with open('blockchain.pickle', mode='rb') as f:
-        file_content = pickle.loads(f.read())
-        blockchain = file_content['chain']
-        open_transactions = file_content['ot']
+    with open('blockchain.txt', mode='r') as f:
+        file_content = f.readlines()
+        blockchain = loads(file_content[0][:-1])
+        blockchain = [ {
+            'previous_hash': block['previous_hash'],
+            'index': block['index'],
+            'transactions': [
+                OrderedDict([
+                    ('sender', tx['sender']),
+                    ('recipient', tx['recipient']),
+                    ('amount', tx['amount'])
+                ]) for tx in block['transactions']
+            ],
+            'proof': block['proof'],
+        } for block in blockchain ]
+
+        open_transactions = loads(file_content[1])
+        open_transactions = [
+            OrderedDict([
+                ('sender', tx['sender']),
+                ('recipient', tx['recipient']),
+                ('amount', tx['amount'])
+                ])
+            for tx in open_transactions
+        ]
 
 load_data()
 
 def save_data():
-    saved_data = {
-        'chain': blockchain,
-        'ot': open_transactions
-    }
-    with open('blockchain.pickle', mode='wb') as f:
-        f.write(pickle.dumps(saved_data))
+    with open('blockchain.txt', mode='w') as f:
+        f.write(dumps(blockchain))
+        f.write('\n')
+        f.write(dumps(open_transactions))
 
 
 def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
