@@ -8,8 +8,7 @@ from hash_util import hash_block, hash_string_256
 MINING_REWARD = 10
 MINING_DIFFICULTY = 2
 
-genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': -1 }
-blockchain = [genesis_block]
+blockchain = []
 open_transactions = []
 owner = 'Ale'
 participants = { owner }
@@ -44,15 +43,19 @@ def load_data():
                 for tx in open_transactions
             ]
     except IOError:
-        print('File not found')
+        genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': -1 }
+        blockchain = [ genesis_block ]
 
 load_data()
 
 def save_data():
-    with open('blockchain.txt', mode='w') as f:
-        f.write(dumps(blockchain))
-        f.write('\n')
-        f.write(dumps(open_transactions))
+    try:
+        with open('blockchain.txt', mode='w') as f:
+            f.write(dumps(blockchain))
+            f.write('\n')
+            f.write(dumps(open_transactions))
+    except IOError:
+        print('Saving failed!')
 
 
 def valid_proof(transactions: list, last_hash:str, proof: int) -> bool:
