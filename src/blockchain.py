@@ -42,7 +42,7 @@ def load_data():
                     ])
                 for tx in open_transactions
             ]
-    except IOError:
+    except (IOError,IndexError):
         genesis_block = { 'previous_hash': '', 'index': 0, 'transactions': [], 'proof': -1 }
         blockchain = [ genesis_block ]
 
