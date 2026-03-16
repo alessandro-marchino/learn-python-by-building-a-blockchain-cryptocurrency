@@ -1,10 +1,11 @@
 from hashlib import sha256
 from json import dumps
+from block import Block
 
 def hash_string_256(string: str) -> str:
     return sha256(string.encode()).hexdigest()
 
-def hash_block(block:dict) -> str:
+def hash_block(block:Block) -> str:
     """Hashes a block and returns a string representation of it.
 
     Arguments:
