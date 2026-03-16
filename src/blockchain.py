@@ -17,31 +17,34 @@ participants = { owner }
 def load_data():
     global blockchain
     global open_transactions
-    with open('blockchain.txt', mode='r') as f:
-        file_content = f.readlines()
-        blockchain = loads(file_content[0][:-1])
-        blockchain = [ {
-            'previous_hash': block['previous_hash'],
-            'index': block['index'],
-            'transactions': [
+    try:
+        with open('blockchain.txt', mode='r') as f:
+            file_content = f.readlines()
+            blockchain = loads(file_content[0][:-1])
+            blockchain = [ {
+                'previous_hash': block['previous_hash'],
+                'index': block['index'],
+                'transactions': [
+                    OrderedDict([
+                        ('sender', tx['sender']),
+                        ('recipient', tx['recipient']),
+                        ('amount', tx['amount'])
+                    ]) for tx in block['transactions']
+                ],
+                'proof': block['proof'],
+            } for block in blockchain ]
+
+            open_transactions = loads(file_content[1])
+            open_transactions = [
                 OrderedDict([
                     ('sender', tx['sender']),
                     ('recipient', tx['recipient']),
                     ('amount', tx['amount'])
-                ]) for tx in block['transactions']
-            ],
-            'proof': block['proof'],
-        } for block in blockchain ]
-
-        open_transactions = loads(file_content[1])
-        open_transactions = [
-            OrderedDict([
-                ('sender', tx['sender']),
-                ('recipient', tx['recipient']),
-                ('amount', tx['amount'])
-                ])
-            for tx in open_transactions
-        ]
+                    ])
+                for tx in open_transactions
+            ]
+    except IOError:
+        print('File not found')
 
 load_data()
 
