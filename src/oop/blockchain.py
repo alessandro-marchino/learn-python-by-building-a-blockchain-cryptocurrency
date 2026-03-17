@@ -1,7 +1,7 @@
 from oop.block import Block, JsonableBlock
 from oop.transaction import Transaction
-from util.hash_util import hash_block
-from util.verification import Verification
+from utility.hash_util import hash_block
+from utility.verification import Verification
 
 from json import dumps, loads
 from functools import reduce

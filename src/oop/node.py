@@ -1,5 +1,5 @@
 from oop.blockchain import Blockchain
-from util.verification import Verification
+from utility.verification import Verification
 
 class Node:
     def __init__(self) -> None:

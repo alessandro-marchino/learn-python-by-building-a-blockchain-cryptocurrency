@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from oop.printable import Printable
+from utility.printable import Printable
 from typing import Literal
 
 class Transaction(Printable):

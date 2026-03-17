@@ -1,7 +1,7 @@
 from oop.block import Block
 from oop.transaction import Transaction
 
-from util.hash_util import hash_block, hash_string_256
+from utility.hash_util import hash_block, hash_string_256
 from collections.abc import Callable
 
 MINING_DIFFICULTY = 2
