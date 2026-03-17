@@ -5,5 +5,5 @@ Udemy course
 
 ## Virtual environment
 
-Initialize the Virtual Environment via `python3 -m venv venv`
-
+Initialize the Virtual Environment via `python3 -m venv .venv` and install the
+dependencies with `pip install -r requirements.txt`.
