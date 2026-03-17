@@ -6,7 +6,6 @@ from util.verification import Verification
 from json import dumps, loads
 from functools import reduce
 
-verifier = Verification()
 MINING_REWARD = 10
 
 class Blockchain:
@@ -51,7 +50,7 @@ class Blockchain:
         last_block = self.chain[-1]
         last_hash = hash_block(last_block)
         nonce = 0
-        while not verifier.valid_proof(self.open_transactions, last_hash, nonce):
+        while not Verification.valid_proof(self.open_transactions, last_hash, nonce):
             nonce += 1
         return nonce
 
@@ -80,7 +79,7 @@ class Blockchain:
             :amount: The amount sent
         """
         transaction = Transaction(sender, recipient, amount)
-        if not verifier.verify_transaction(transaction, self.get_balance):
+        if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.open_transactions.append(transaction)
         self.save_data()

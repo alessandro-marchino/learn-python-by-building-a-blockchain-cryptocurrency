@@ -7,28 +7,31 @@ from collections.abc import Callable
 MINING_DIFFICULTY = 2
 
 class Verification:
-    def valid_proof(self, transactions:list[Transaction], last_hash:str, proof:int) -> bool:
+    @staticmethod
+    def valid_proof(transactions:list[Transaction], last_hash:str, proof:int) -> bool:
         guess = str([ tx.to_ordered_dict() for tx in transactions ]) + str(last_hash) + str(proof)
         guess_hash = hash_string_256(guess)
         return guess_hash[0:MINING_DIFFICULTY] == ('0' * MINING_DIFFICULTY)
 
 
-    def verify_chain(self, blockchain:list[Block]) -> bool:
+    @classmethod
+    def verify_chain(cls, blockchain:list[Block]) -> bool:
         for (index, block) in enumerate(blockchain):
             if index == 0:
                 continue
             if block.previous_hash != hash_block(blockchain[index - 1]):
                 return False
-            if not self.valid_proof(block.transactions[:-1], block.previous_hash, block.proof):
+            if not cls.valid_proof(block.transactions[:-1], block.previous_hash, block.proof):
                 print('Proof of work is invalid!')
                 return False
         return True
 
 
-    def verify_transaction(self, transaction:Transaction, get_balance:Callable[...,float]) -> bool:
+    @staticmethod
+    def verify_transaction(transaction:Transaction, get_balance:Callable[...,float]) -> bool:
         sender_balance = get_balance()
         return sender_balance >= transaction.amount
 
-
-    def verify_transactions(self, open_transactions:list[Transaction], get_balance:Callable[...,float]) -> bool:
-        return all([ self.verify_transaction(tx, get_balance) for tx in open_transactions ])
+    @classmethod
+    def verify_transactions(cls, open_transactions:list[Transaction], get_balance:Callable[...,float]) -> bool:
+        return all([ cls.verify_transaction(tx, get_balance) for tx in open_transactions ])

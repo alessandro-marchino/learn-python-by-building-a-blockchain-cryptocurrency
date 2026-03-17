@@ -4,7 +4,6 @@ from util.verification import Verification
 class Node:
     def __init__(self) -> None:
         self.id = 'Ale'
-        self.verifier = Verification()
         self.blockchain = Blockchain(self.id)
 
     def get_transaction_value(self) -> tuple[str, float]:
@@ -48,7 +47,7 @@ class Node:
             elif user_choice == '3':
                 self.print_blockchain_elements()
             elif user_choice == '4':
-                if self.verifier.verify_transactions(self.blockchain.open_transactions, self.blockchain.get_balance):
+                if Verification.verify_transactions(self.blockchain.open_transactions, self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions')
@@ -58,7 +57,7 @@ class Node:
                 print('Choice was invalid, please pick a value from the list!')
 
             print(f'Balance for {self.id}: {self.blockchain.get_balance():6.2f}')
-            if not self.verifier.verify_chain(self.blockchain.chain):
+            if not Verification.verify_chain(self.blockchain.chain):
                 self.print_blockchain_elements()
                 print('Invalid blockchain!')
                 waiting_for_input = False
