@@ -2,7 +2,7 @@ from hashlib import sha256
 from json import dumps
 from oop.block import Block
 
-def hash_string_256(string: str) -> str:
+def hash_string_256(string:str) -> str:
     return sha256(string.encode()).hexdigest()
 
 def hash_block(block:Block) -> str:
