@@ -15,8 +15,13 @@ class Blockchain:
         self.hosting_node = hosting_node_id
         self.load_data()
 
-    def get_chain(self) -> list[Block]:
+    @property
+    def chain(self) -> list[Block]:
         return self.__chain[:]
+
+    @chain.setter
+    def chain(self, val) -> None:
+        self.__chain = val
 
     def get_open_transactions(self) -> list[Transaction]:
         return self.__open_transactions[:]
@@ -27,7 +32,7 @@ class Blockchain:
             with open('blockchain.txt', mode='r') as f:
                 file_content = f.readlines()
                 tmp_blockchain = loads(file_content[0][:-1])
-                self.__chain = [
+                self.chain = [
                     Block(
                         block['index'],
                         block['previous_hash'],
