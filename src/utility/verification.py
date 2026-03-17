@@ -1,3 +1,4 @@
+""" Provides verification helper methods. """
 from oop.block import Block
 from oop.transaction import Transaction
 
