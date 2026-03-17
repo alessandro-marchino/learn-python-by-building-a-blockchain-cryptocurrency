@@ -1,7 +1,7 @@
 from functools import reduce
 from json import dumps, loads
 
-from block import Block
+from block import Block, JsonableBlock
 from transaction import Transaction
 
 from hash_util import hash_block, hash_string_256
@@ -42,16 +42,7 @@ load_data()
 def save_data():
     try:
         with open('blockchain.txt', mode='w') as f:
-            saveable_chain = [
-                block.__dict__ for block in [
-                    Block(
-                        block_el.index,
-                        block_el.previous_hash,
-                        [ tx.to_ordered_dict() for tx in block_el.transactions ],
-                        block_el.proof, block_el.timestamp
-                    ) for block_el in blockchain
-                ]
-            ]
+            saveable_chain = [ jb.__dict__ for jb in [ JsonableBlock(block) for block in blockchain ] ]
             f.write(dumps(saveable_chain))
             f.write('\n')
             saveable_tx = [ tx.__dict__ for tx in open_transactions ]
