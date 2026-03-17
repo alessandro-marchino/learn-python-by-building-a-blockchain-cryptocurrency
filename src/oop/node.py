@@ -1,0 +1,72 @@
+from oop.block import Block
+from util.verification import Verification
+
+class Node:
+    def __init__(self) -> None:
+        self.verifier = Verification()
+        self.blockchain: list[Block] = []
+
+    def get_transaction_value(self) -> tuple[str, float]:
+        """ Returns the input of the user (a transaction recipient and amount) as a tuple. """
+        tx_recipient = input('Enter the recipient of the transaction: ')
+        user_input = input('Your transaction amount please: ')
+        return tx_recipient, float(user_input)
+
+    def get_user_choice(self) -> str:
+        """ Returns the user choice. """
+        return input('Your choice: ')
+
+    def print_blockchain_elements(self) -> None:
+        """ Prints the blockchain elements. """
+        for block in self.blockchain:
+            print('Outputting block...')
+            print(block)
+        else:
+            print('-' * 20)
+
+    def listen_for_input(self):
+        waiting_for_input = True
+
+        while waiting_for_input:
+            print('Please choose')
+            print('1: Add a new transaction value')
+            print('2: Mine a new block')
+            print('3: Output the blockchain blocks')
+            print('4: Output participants')
+            print('5: Check transaction validity')
+            print('q: Exit')
+            user_choice = self.get_user_choice()
+            if user_choice == '1':
+                tx_data = self.get_transaction_value()
+                recipient, amount = tx_data
+                if add_transaction(recipient, amount=amount):
+                    print('Added transaction')
+                else:
+                    print('Transaction failed')
+            elif user_choice == '2':
+                if mine_block():
+                    open_transactions = []
+                    save_data()
+            elif user_choice == '3':
+                self.print_blockchain_elements()
+            elif user_choice == '4':
+                print(participants)
+            elif user_choice == '5':
+                if self.verifier.verify_transactions(open_transactions, get_balance):
+                    print('All transactions are valid')
+                else:
+                    print('There are invalid transactions')
+            elif user_choice == 'q':
+                waiting_for_input = False
+            else:
+                print('Choice was invalid, please pick a value from the list!')
+
+            print(f'Balance for {owner}: {get_balance(owner):6.2f}')
+            if not self.verifier.verify_chain(blockchain):
+                self.print_blockchain_elements()
+                print('Invalid blockchain!')
+                waiting_for_input = False
+        else:
+            print('User left!')
+
+        print('Done!')
