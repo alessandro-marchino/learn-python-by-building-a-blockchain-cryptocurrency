@@ -53,7 +53,8 @@ load_data()
 def save_data():
     try:
         with open('blockchain.txt', mode='w') as f:
-            f.write(dumps(blockchain))
+            saveable_chain = [ block.__dict__ for block in blockchain ]
+            f.write(dumps(saveable_chain))
             f.write('\n')
             f.write(dumps(open_transactions))
     except IOError:

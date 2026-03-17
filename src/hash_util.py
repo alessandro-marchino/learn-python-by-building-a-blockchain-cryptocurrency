@@ -11,4 +11,5 @@ def hash_block(block:Block) -> str:
     Arguments:
         : block: The block that should be hashed
     """
-    return hash_string_256(dumps(block, sort_keys=True))
+    hashable_block = block.__dict__.copy()
+    return hash_string_256(dumps(hashable_block, sort_keys=True))
