@@ -10,10 +10,16 @@ MINING_REWARD = 10
 
 class Blockchain:
     def __init__(self, hosting_node_id:str) -> None:
-        self.chain: list[Block] = [ Block(0, '', [], -1, 0) ]
-        self.open_transactions: list[Transaction] = []
+        self.__chain: list[Block] = [ Block(0, '', [], -1, 0) ]
+        self.__open_transactions: list[Transaction] = []
         self.hosting_node = hosting_node_id
         self.load_data()
+
+    def get_chain(self) -> list[Block]:
+        return self.__chain[:]
+
+    def get_open_transactions(self) -> list[Transaction]:
+        return self.__open_transactions[:]
 
     def load_data(self) -> None:
         """ Initialize blockchain + import transaction data from file."""
@@ -21,7 +27,7 @@ class Blockchain:
             with open('blockchain.txt', mode='r') as f:
                 file_content = f.readlines()
                 tmp_blockchain = loads(file_content[0][:-1])
-                self.chain = [
+                self.__chain = [
                     Block(
                         block['index'],
                         block['previous_hash'],
@@ -31,43 +37,43 @@ class Blockchain:
                     for block in tmp_blockchain ]
 
                 tmp_transactions = loads(file_content[1])
-                self.open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['amount']) for tx in tmp_transactions ]
+                self.__open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['amount']) for tx in tmp_transactions ]
         except (IOError,IndexError):
             pass
 
     def save_data(self) -> None:
         try:
             with open('blockchain.txt', mode='w') as f:
-                saveable_chain = [ jb.__dict__ for jb in [ JsonableBlock(block) for block in self.chain ] ]
+                saveable_chain = [ jb.__dict__ for jb in [ JsonableBlock(block) for block in self.__chain ] ]
                 f.write(dumps(saveable_chain))
                 f.write('\n')
-                saveable_tx = [ tx.__dict__ for tx in self.open_transactions ]
+                saveable_tx = [ tx.__dict__ for tx in self.__open_transactions ]
                 f.write(dumps(saveable_tx))
         except IOError:
             print('Saving failed!')
 
     def proof_of_work(self) -> int:
-        last_block = self.chain[-1]
+        last_block = self.__chain[-1]
         last_hash = hash_block(last_block)
         nonce = 0
-        while not Verification.valid_proof(self.open_transactions, last_hash, nonce):
+        while not Verification.valid_proof(self.__open_transactions, last_hash, nonce):
             nonce += 1
         return nonce
 
     def get_balance(self)-> float:
-        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == self.hosting_node ] for block in self.chain ]
-        open_tx_sender = [ tx.amount for tx in self.open_transactions ]
+        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == self.hosting_node ] for block in self.__chain ]
+        open_tx_sender = [ tx.amount for tx in self.__open_transactions ]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_sender, 0.0)
 
-        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == self.hosting_node ] for block in self.chain ]
+        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == self.hosting_node ] for block in self.__chain ]
         amount_received = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_received, 0.0)
 
         return amount_received - amount_sent
 
     def get_last_blockchain_value(self) -> Block:
         """ Gets the last block of the blockchain."""
-        return self.chain[-1]
+        return self.__chain[-1]
 
     def add_transaction(self, recipient:str, sender:str, amount:float=1.0) -> bool:
         """
@@ -81,7 +87,7 @@ class Blockchain:
         transaction = Transaction(sender, recipient, amount)
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
-        self.open_transactions.append(transaction)
+        self.__open_transactions.append(transaction)
         self.save_data()
         return True
 
@@ -89,15 +95,15 @@ class Blockchain:
         """
         Mines a new blockchain block.
         """
-        last_block = self.chain[-1]
+        last_block = self.__chain[-1]
         proof = self.proof_of_work()
         reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)
 
-        copied_transactions = self.open_transactions[:]
+        copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
-        block = Block(len(self.chain), hash_block(last_block), copied_transactions, proof)
-        self.chain.append(block)
+        block = Block(len(self.__chain), hash_block(last_block), copied_transactions, proof)
+        self.__chain.append(block)
 
-        self.open_transactions = []
+        self.__open_transactions = []
         self.save_data()
         return True
