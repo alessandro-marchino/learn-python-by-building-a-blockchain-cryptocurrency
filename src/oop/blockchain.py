@@ -10,9 +10,10 @@ verifier = Verification()
 MINING_REWARD = 10
 
 class Blockchain:
-    def __init__(self) -> None:
+    def __init__(self, hosting_node_id:str) -> None:
         self.chain: list[Block] = [ Block(0, '', [], -1, 0) ]
         self.open_transactions: list[Transaction] = []
+        self.hosting_node = hosting_node_id
         self.load_data()
 
     def load_data(self) -> None:
@@ -54,13 +55,13 @@ class Blockchain:
             nonce += 1
         return nonce
 
-    def get_balance(self, participant:str)-> float:
-        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == participant ] for block in self.chain ]
+    def get_balance(self)-> float:
+        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == self.hosting_node ] for block in self.chain ]
         open_tx_sender = [ tx.amount for tx in self.open_transactions ]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_sender, 0.0)
 
-        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == participant ] for block in self.chain ]
+        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == self.hosting_node ] for block in self.chain ]
         amount_received = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_received, 0.0)
 
         return amount_received - amount_sent
@@ -85,16 +86,19 @@ class Blockchain:
         self.save_data()
         return True
 
-    def mine_block(self, node:str) -> bool:
+    def mine_block(self) -> bool:
         """
         Mines a new blockchain block.
         """
         last_block = self.chain[-1]
         proof = self.proof_of_work()
-        reward_transaction = Transaction('MINING', node, MINING_REWARD)
+        reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)
 
         copied_transactions = self.open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(len(self.chain), hash_block(last_block), copied_transactions, proof)
         self.chain.append(block)
+
+        self.open_transactions = []
+        self.save_data()
         return True

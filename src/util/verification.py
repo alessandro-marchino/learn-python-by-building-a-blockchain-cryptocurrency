@@ -26,7 +26,7 @@ class Verification:
 
 
     def verify_transaction(self, transaction:Transaction, get_balance:Callable[...,float]) -> bool:
-        sender_balance = get_balance(transaction.sender)
+        sender_balance = get_balance()
         return sender_balance >= transaction.amount
 
 
