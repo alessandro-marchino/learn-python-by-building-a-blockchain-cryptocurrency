@@ -1,6 +1,6 @@
 from time import time
-from transaction import Transaction
-from printable import Printable
+from oop.transaction import Transaction
+from oop.printable import Printable
 
 class Block(Printable):
     def __init__(self, index: int, previous_hash: str, transactions: list[Transaction], proof: int, timestamp:float|None=None) -> None:

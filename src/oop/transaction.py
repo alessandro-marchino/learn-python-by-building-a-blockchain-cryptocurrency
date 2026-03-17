@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from printable import Printable
+from oop.printable import Printable
 
 class Transaction(Printable):
     def __init__(self, sender:str, recipient:str, amount:float) -> None:
