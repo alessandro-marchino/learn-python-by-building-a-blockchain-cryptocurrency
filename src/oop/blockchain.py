@@ -36,13 +36,13 @@ class Blockchain:
                     Block(
                         block['index'],
                         block['previous_hash'],
-                        [ Transaction(tx['sender'], tx['recipient'], tx['amount']) for tx in block['transactions'] ],
+                        [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions'] ],
                         block['proof'],
                         block['timestamp'])
                     for block in tmp_blockchain ]
 
                 tmp_transactions = loads(file_content[1])
-                self.__open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['amount']) for tx in tmp_transactions ]
+                self.__open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in tmp_transactions ]
         except (IOError,IndexError):
             pass
 
@@ -91,7 +91,7 @@ class Blockchain:
         """
         if self.hosting_node is None:
             return False
-        transaction = Transaction(sender, recipient, amount)
+        transaction = Transaction(sender, recipient, signature, amount)
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.__open_transactions.append(transaction)
@@ -107,7 +107,7 @@ class Blockchain:
 
         last_block = self.__chain[-1]
         proof = self.proof_of_work()
-        reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)
+        reward_transaction = Transaction('MINING', self.hosting_node, '', MINING_REWARD)
 
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
