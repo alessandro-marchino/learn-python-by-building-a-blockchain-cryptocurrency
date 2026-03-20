@@ -1,8 +1,5 @@
 from oop.node import Node
 
-# if __name__ == '__main__':
-#     node = Node()
-#     node.listen_for_input()
-
-from oop.wallet import Wallet
-wallet = Wallet()
+if __name__ == '__main__':
+    node = Node()
+    node.listen_for_input()

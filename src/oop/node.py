@@ -1,10 +1,11 @@
 from oop.blockchain import Blockchain
 from utility.verification import Verification
+from oop.wallet import Wallet
 
 class Node:
     def __init__(self) -> None:
-        self.id = 'Ale'
-        self.blockchain = Blockchain(self.id)
+        self.wallet = Wallet()
+        self.blockchain = Blockchain(self.wallet.public_key or '')
 
     def get_transaction_value(self) -> tuple[str, float]:
         """ Returns the input of the user (a transaction recipient and amount) as a tuple. """
@@ -33,12 +34,15 @@ class Node:
             print('2: Mine a new block')
             print('3: Output the blockchain blocks')
             print('4: Check transaction validity')
+            print('5: Create wallet')
+            print('6: Load wallet')
             print('q: Exit')
             user_choice = self.get_user_choice()
             if user_choice == '1':
                 tx_data = self.get_transaction_value()
                 recipient, amount = tx_data
-                if self.blockchain.add_transaction(recipient, sender=self.id, amount=amount):
+                assert self.wallet.public_key is not None
+                if self.blockchain.add_transaction(recipient, sender=self.wallet.public_key, amount=amount):
                     print('Added transaction')
                 else:
                     print('Transaction failed')
@@ -51,12 +55,17 @@ class Node:
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions')
+            elif user_choice == '5':
+                self.wallet.create_keys()
+                pass
+            elif user_choice == '6':
+                pass
             elif user_choice == 'q':
                 waiting_for_input = False
             else:
                 print('Choice was invalid, please pick a value from the list!')
 
-            print(f'Balance for {self.id}: {self.blockchain.get_balance():6.2f}')
+            print(f'Balance for {self.wallet.public_key}: {self.blockchain.get_balance():6.2f}')
             if not Verification.verify_chain(self.blockchain.chain):
                 self.print_blockchain_elements()
                 print('Invalid blockchain!')
