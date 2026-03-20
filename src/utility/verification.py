@@ -1,6 +1,7 @@
 """ Provides verification helper methods. """
 from oop.block import Block
 from oop.transaction import Transaction
+from oop.wallet import Wallet
 
 from utility.hash_util import hash_block, hash_string_256
 from collections.abc import Callable
@@ -29,10 +30,12 @@ class Verification:
 
 
     @staticmethod
-    def verify_transaction(transaction:Transaction, get_balance:Callable[...,float]) -> bool:
-        sender_balance = get_balance()
-        return sender_balance >= transaction.amount
+    def verify_transaction(transaction:Transaction, get_balance:Callable[...,float], check_funds=True) -> bool:
+        if check_funds:
+            sender_balance = get_balance()
+            return sender_balance >= transaction.amount and Wallet.verify_transaction(transaction)
+        return Wallet.verify_transaction(transaction)
 
     @classmethod
     def verify_transactions(cls, open_transactions:list[Transaction], get_balance:Callable[...,float]) -> bool:
-        return all([ cls.verify_transaction(tx, get_balance) for tx in open_transactions ])
+        return all([ cls.verify_transaction(tx, get_balance, False) for tx in open_transactions ])
