@@ -1,5 +1,6 @@
 from oop.block import Block, JsonableBlock
 from oop.transaction import Transaction
+from oop.wallet import Wallet
 from utility.hash_util import hash_block
 from utility.verification import Verification
 
@@ -92,6 +93,8 @@ class Blockchain:
         if self.hosting_node is None:
             return False
         transaction = Transaction(sender, recipient, signature, amount)
+        if not Wallet.verify_transaction(transaction):
+            return False
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.__open_transactions.append(transaction)
@@ -112,6 +115,11 @@ class Blockchain:
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(len(self.__chain), hash_block(last_block), copied_transactions, proof)
+
+        for tx in block.transactions:
+            if not Wallet.verify_transaction(tx):
+                return False
+
         self.__chain.append(block)
 
         self.__open_transactions = []
