@@ -44,7 +44,8 @@ class Node:
                 tx_data = self.get_transaction_value()
                 recipient, amount = tx_data
                 assert self.wallet.public_key is not None
-                if self.blockchain.add_transaction(recipient, sender=self.wallet.public_key, amount=amount):
+                signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
+                if self.blockchain.add_transaction(recipient, sender=self.wallet.public_key, signature=signature, amount=amount):
                     print('Added transaction')
                 else:
                     print('Transaction failed')

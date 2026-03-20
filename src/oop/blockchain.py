@@ -80,7 +80,7 @@ class Blockchain:
         """ Gets the last block of the blockchain."""
         return self.__chain[-1]
 
-    def add_transaction(self, recipient:str, sender:str, amount:float=1.0) -> bool:
+    def add_transaction(self, recipient:str, sender:str, signature:str, amount:float=1.0) -> bool:
         """
         Append a new value as well as the last transaction value to the blockchain.
 

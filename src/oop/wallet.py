@@ -1,6 +1,10 @@
 from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
 import Crypto.Random
 import binascii
+
+from oop.transaction import Transaction
 
 class Wallet:
     def __init__(self) -> None:
@@ -38,3 +42,12 @@ class Wallet:
             binascii.hexlify(private_key.exportKey(format='DER')).decode('ascii'),
             binascii.hexlify(public_key.exportKey(format='DER')).decode('ascii')
         )
+
+    def sign_transaction(self, sender:str, recipient:str, amount:float) -> str:
+        if self.private_key is None:
+            return ''
+
+        signer = PKCS1_v1_5.new(RSA.import_key(binascii.unhexlify(self.private_key)))
+        payload = SHA256.new((str(sender) + str(recipient) + str(amount)).encode('utf8'))
+        signature = signer.sign(payload)
+        return binascii.hexlify(signature).decode('ascii')
