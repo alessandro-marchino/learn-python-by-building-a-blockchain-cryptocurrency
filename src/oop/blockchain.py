@@ -9,7 +9,7 @@ from functools import reduce
 MINING_REWARD = 10
 
 class Blockchain:
-    def __init__(self, hosting_node_id:str) -> None:
+    def __init__(self, hosting_node_id:str|None) -> None:
         self.__chain: list[Block] = [ Block(0, '', [], -1, 0) ]
         self.__open_transactions: list[Transaction] = []
         self.hosting_node = hosting_node_id
@@ -89,6 +89,8 @@ class Blockchain:
             :recepient: The recipient of the transaction
             :amount: The amount sent
         """
+        if self.hosting_node is None:
+            return False
         transaction = Transaction(sender, recipient, amount)
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
@@ -100,6 +102,9 @@ class Blockchain:
         """
         Mines a new blockchain block.
         """
+        if self.hosting_node is None:
+            return False
+
         last_block = self.__chain[-1]
         proof = self.proof_of_work()
         reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)

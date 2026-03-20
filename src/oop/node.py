@@ -5,7 +5,7 @@ from oop.wallet import Wallet
 class Node:
     def __init__(self) -> None:
         self.wallet = Wallet()
-        self.blockchain = Blockchain(self.wallet.public_key or '')
+        self.blockchain = Blockchain(self.wallet.public_key)
 
     def get_transaction_value(self) -> tuple[str, float]:
         """ Returns the input of the user (a transaction recipient and amount) as a tuple. """
@@ -47,7 +47,8 @@ class Node:
                 else:
                     print('Transaction failed')
             elif user_choice == '2':
-                self.blockchain.mine_block()
+                if not self.blockchain.mine_block():
+                    print('Mining failed. Got no wallet?')
             elif user_choice == '3':
                 self.print_blockchain_elements()
             elif user_choice == '4':
@@ -57,6 +58,7 @@ class Node:
                     print('There are invalid transactions')
             elif user_choice == '5':
                 self.wallet.create_keys()
+                self.blockchain.hosting_node = self.wallet.public_key
                 pass
             elif user_choice == '6':
                 pass
