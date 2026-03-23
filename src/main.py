@@ -100,9 +100,9 @@ def add_transaction():
                 'sender': node.wallet.public_key,
                 'recipient': values['recipient'],
                 'amount': values['amount'],
-                'signature': signature,
-                'funds': node.get_balance()
-            }
+                'signature': signature
+            },
+            'funds': node.get_balance()
         }
         return jsonify(response), 201
     response = {

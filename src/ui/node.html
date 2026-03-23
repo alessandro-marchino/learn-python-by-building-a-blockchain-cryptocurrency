@@ -40,6 +40,10 @@
       animation-delay: -0.15s;
     }
 
+    .alert {
+      overflow-wrap: break-word;
+    }
+
     @keyframes lds-ring {
       0% {
         transform: rotate(0deg);
@@ -84,7 +88,7 @@
           </div>
         </div>
         <div class="col text-right">
-          <h2>Funds: {{ funds }}</h2>
+          <h2>Funds: {{ funds.toFixed(2) }}</h2>
         </div>
       </div>
       <hr>
@@ -222,53 +226,65 @@
       methods: {
         onCreateWallet: async function () {
           // Send Http request to create a new wallet (and return keys)
-          this.dataLoading = true;
+          this.walletLoading = true;
           this.error = null;
           this.success = null;
+          this.wallet = null;
           try {
             const res = await axios.post('/wallet');
+            this.wallet = { public_key: res.data.public_key }
             this.funds = res.data.funds;
             this.success = `Created wallet! Public key: ${res.data.public_key}, Private key: ${res.data.private_key}`
           } catch(e) {
-            this.error = e.data.message;
+            this.error = e.response.data.message;
           } finally {
-            this.dataLoading = false;
+            this.walletLoading = false;
           }
         },
         onLoadWallet: async function () {
           // Send Http request to load an existing wallet (from a file on the server)
-          this.dataLoading = true;
+          this.walletLoading = true;
           this.error = null;
           this.success = null;
+          this.wallet = null;
           try {
             const res = await axios.get('/wallet');
+            this.wallet = { public_key: res.data.public_key }
             this.funds = res.data.funds;
             this.success = `Loaded wallet! Public key: ${res.data.public_key}`
           } catch(e) {
-            this.error = e.data.message;
+            this.error = e.response.data.message;
           } finally {
-            this.dataLoading = false;
+            this.walletLoading = false;
           }
         },
-        onSendTx: function () {
+        onSendTx: async function () {
           // Send Transaction to backend
-          if (Math.random() > 0.5) {
-            this.error = null
-            this.success = 'Successfully stored transaction!'
-            this.funds = this.funds - this.outgoingTx.amount
-          } else {
-            this.success = null;
-            this.error = 'Something went wrong!'
+          this.txLoading = true;
+          this.error = null;
+          this.success = null;
+          try {
+            const res = await axios.post('/transaction', {
+              recipient: this.outgoingTx.recipient,
+              amount: this.outgoingTx.amount
+            });
+            this.success = res.data.message;
+            this.funds = res.data.funds
+          } catch(e) {
+            this.error = e.response.data.message;
+          } finally {
+            this.txLoading = false;
           }
         },
-        onMine: function() {
-          if (Math.random() > 0.5) {
-            this.error = null
-            this.success = 'Successfully mined coins!'
-            this.funds = this.funds + 10
-          } else {
-            this.success = null;
-            this.error = 'Something went wrong!'
+        onMine: async function() {
+          this.success = null;
+          this.error = null
+          try {
+            const res = await axios.post('/mine');
+            this.funds = res.data.funds;
+            this.success = res.data.message;
+          } catch(e) {
+            this.error = e.response.data.message;
           }
         },
         onLoadData: async function () {
