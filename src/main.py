@@ -52,6 +52,12 @@ def get_balance():
 def get_ui() -> str:
     return 'This works'
 
+@app.route('/transaction', methods=[ 'GET' ])
+def get_open_transactions():
+    open_transactions = node.get_open_transactions()
+    dict_transactions = [ tx.to_ordered_dict() for tx in open_transactions ]
+    return jsonify(dict_transactions), 200
+
 @app.route('/chain', methods=[ 'GET' ])
 def get_chain():
     return jsonify([ block.__dict__ for block in node.get_chain() ]), 200

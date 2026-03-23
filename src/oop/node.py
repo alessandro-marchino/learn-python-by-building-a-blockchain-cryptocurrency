@@ -1,7 +1,7 @@
 from oop.wallet import Wallet
 from oop.blockchain import Blockchain
 from oop.block import JsonableBlock
-import typing
+from oop.transaction import Transaction
 
 class Node:
     def __init__(self) -> None:
@@ -39,3 +39,6 @@ class Node:
             return False, ''
         signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
         return self.blockchain.add_transaction(recipient, signature, amount), signature
+
+    def get_open_transactions(self) -> list[Transaction]:
+        return self.blockchain.get_open_transactions()
