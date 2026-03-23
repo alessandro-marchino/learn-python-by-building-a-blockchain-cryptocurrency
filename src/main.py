@@ -1,10 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 from oop.node import Node
 
 app = Flask(__name__)
 CORS(app)
 node: Node
+
+@app.route('/', methods=[ 'GET' ])
+def get_ui() -> Response:
+    return send_from_directory('ui', 'node.html')
 
 @app.route('/wallet', methods=[ 'POST' ])
 def create_keys():
@@ -47,10 +51,6 @@ def get_balance():
         'wallet_set_up': node.wallet.public_key != None
     }
     return jsonify(response), 500
-
-@app.route('/', methods=[ 'GET' ])
-def get_ui() -> str:
-    return 'This works'
 
 @app.route('/transaction', methods=[ 'GET' ])
 def get_open_transactions():
