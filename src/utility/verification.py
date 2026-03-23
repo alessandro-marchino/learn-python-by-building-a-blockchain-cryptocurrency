@@ -30,9 +30,11 @@ class Verification:
 
 
     @staticmethod
-    def verify_transaction(transaction:Transaction, get_balance:Callable[...,float], check_funds=True) -> bool:
+    def verify_transaction(transaction:Transaction, get_balance:Callable[...,float|None], check_funds=True) -> bool:
         if check_funds:
             sender_balance = get_balance()
+            if sender_balance is None:
+                return False
             return sender_balance >= transaction.amount and Wallet.verify_transaction(transaction)
         return Wallet.verify_transaction(transaction)
 

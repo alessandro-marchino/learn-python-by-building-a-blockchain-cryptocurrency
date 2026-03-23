@@ -11,7 +11,8 @@ def create_keys():
     if node.create_keys():
         response = {
             'public_key': node.wallet.public_key,
-            'private_key': node.wallet.private_key
+            'private_key': node.wallet.private_key,
+            'funds': node.get_balance()
         }
         return jsonify(response), 201
     response = {
@@ -23,11 +24,27 @@ def create_keys():
 def load_keys():
     if node.load_keys():
         response = {
-            'public_key': node.wallet.public_key
+            'public_key': node.wallet.public_key,
+            'funds': node.get_balance()
         }
         return jsonify(response), 200
     response = {
         'message': 'Loading the keys failed'
+    }
+    return jsonify(response), 500
+
+@app.route('/balance', methods=[ 'GET' ])
+def get_balance():
+    balance = node.get_balance()
+    if balance is not None:
+        response = {
+            'message': 'Fetched balance successfully',
+            'funds': balance
+        }
+        return jsonify(response), 200
+    response = {
+        'message': 'Loading balance failed',
+        'wallet_set_up': node.wallet.public_key != None
     }
     return jsonify(response), 500
 
@@ -45,7 +62,8 @@ def mine():
     if block is not None:
         response = {
             'message': 'Block added successfully',
-            'block': block.__dict__
+            'block': block.__dict__,
+            'funds': node.get_balance()
         }
         return jsonify(response), 201
     response = {

@@ -30,3 +30,6 @@ class Node:
             self.blockchain = Blockchain(self.wallet.public_key)
             return True
         return False
+
+    def get_balance(self) -> float|None:
+        return self.blockchain.get_balance()

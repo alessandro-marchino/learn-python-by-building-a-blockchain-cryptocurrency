@@ -66,7 +66,9 @@ class Blockchain:
             nonce += 1
         return nonce
 
-    def get_balance(self)-> float:
+    def get_balance(self)-> float | None:
+        if self.hosting_node is None:
+            return None
         tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == self.hosting_node ] for block in self.__chain ]
         open_tx_sender = [ tx.amount for tx in self.__open_transactions ]
         tx_sender.append(open_tx_sender)
