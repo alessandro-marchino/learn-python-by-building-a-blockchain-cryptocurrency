@@ -83,7 +83,7 @@ class Blockchain:
         """ Gets the last block of the blockchain."""
         return self.__chain[-1]
 
-    def add_transaction(self, recipient:str, sender:str, signature:str, amount:float=1.0) -> bool:
+    def add_transaction(self, recipient:str, signature:str, amount:float=1.0) -> bool:
         """
         Append a new value as well as the last transaction value to the blockchain.
 
@@ -94,7 +94,7 @@ class Blockchain:
         """
         if self.hosting_node is None:
             return False
-        transaction = Transaction(sender, recipient, signature, amount)
+        transaction = Transaction(self.hosting_node, recipient, signature, amount)
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.__open_transactions.append(transaction)

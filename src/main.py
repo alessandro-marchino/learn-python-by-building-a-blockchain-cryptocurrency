@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from oop.node import Node
 
@@ -69,6 +69,38 @@ def mine():
     response = {
         'message': 'Adding a block failed',
         'wallet_set_up': node.wallet.public_key != None
+    }
+    return jsonify(response), 500
+
+@app.route('/transaction', methods=[ 'POST' ])
+def add_transaction():
+    values = request.get_json()
+    if not values:
+        response = {
+            'message': 'No data found'
+        }
+        return jsonify(response), 400
+    required_fields = [ 'recipient', 'amount' ]
+    if not all(field in values for field in required_fields):
+        response = {
+            'message': 'Required data is missing'
+        }
+        return jsonify(response), 400
+    result, signature = node.add_transaction(values['recipient'], values['amount'])
+    if result:
+        response = {
+            'message': 'Successfully added transaction',
+            'transaction': {
+                'sender': node.wallet.public_key,
+                'recipient': values['recipient'],
+                'amount': values['amount'],
+                'signature': signature,
+                'funds': node.get_balance()
+            }
+        }
+        return jsonify(response), 201
+    response = {
+        'message': 'Creating a transaction failed'
     }
     return jsonify(response), 500
 

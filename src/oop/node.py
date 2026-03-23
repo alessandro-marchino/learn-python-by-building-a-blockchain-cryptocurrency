@@ -33,3 +33,9 @@ class Node:
 
     def get_balance(self) -> float|None:
         return self.blockchain.get_balance()
+
+    def add_transaction(self, recipient:str, amount:float) -> tuple[bool,str]:
+        if self.wallet.public_key is None:
+            return False, ''
+        signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
+        return self.blockchain.add_transaction(recipient, signature, amount), signature
