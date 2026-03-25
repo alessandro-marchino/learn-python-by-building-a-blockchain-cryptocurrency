@@ -11,8 +11,9 @@ MINING_REWARD = 10
 
 class Blockchain:
     def __init__(self, hosting_node_id:str|None) -> None:
-        self.__chain: list[Block] = [ Block(0, '', [], -1, 0) ]
-        self.__open_transactions: list[Transaction] = []
+        self.__chain:list[Block] = [ Block(0, '', [], -1, 0) ]
+        self.__open_transactions:list[Transaction] = []
+        self.__peer_nodes:set[str] = set()
         self.hosting_node = hosting_node_id
         self.load_data()
 
@@ -42,8 +43,11 @@ class Blockchain:
                         block['timestamp'])
                     for block in tmp_blockchain ]
 
-                tmp_transactions = loads(file_content[1])
+                tmp_transactions = loads(file_content[1][:-1])
                 self.__open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in tmp_transactions ]
+
+                peer_nodes = loads(file_content[2])
+                self.__peer_nodes = set(peer_nodes)
         except (IOError,IndexError):
             pass
 
@@ -55,6 +59,8 @@ class Blockchain:
                 f.write('\n')
                 saveable_tx = [ tx.__dict__ for tx in self.__open_transactions ]
                 f.write(dumps(saveable_tx))
+                f.write('\n')
+                f.write(dumps(list(self.__peer_nodes)))
         except IOError:
             print('Saving failed!')
 
@@ -127,3 +133,21 @@ class Blockchain:
         self.__open_transactions = []
         self.save_data()
         return block
+
+    def add_peer_node(self, node:str) -> None:
+        """Adds the new node to the peer node set.
+
+        Arguments:
+            :node: the node URL with should be added
+        """
+        self.__peer_nodes.add(node)
+        self.save_data()
+
+    def remove_peer_node(self, node:str) -> None:
+        """Removes the new node from the peer node set.
+
+        Arguments:
+            :node: the node URL with should be removed
+        """
+        self.__peer_nodes.discard(node)
+        self.save_data()
