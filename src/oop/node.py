@@ -42,3 +42,12 @@ class Node:
 
     def get_open_transactions(self) -> list[Transaction]:
         return self.blockchain.get_open_transactions()
+
+    def add_node(self, node) -> None:
+        self.blockchain.add_peer_node(node)
+
+    def remove_node(self, node) -> None:
+        self.blockchain.remove_peer_node(node)
+
+    def get_nodes(self) -> list[str]:
+        return self.blockchain.get_peer_nodes()

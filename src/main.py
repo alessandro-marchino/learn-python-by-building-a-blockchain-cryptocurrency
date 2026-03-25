@@ -11,7 +11,7 @@ def get_ui() -> Response:
     return send_from_directory('ui', 'node.html')
 
 @app.route('/wallet', methods=[ 'POST' ])
-def create_keys():
+def create_keys() -> tuple[Response,int]:
     if node.create_keys():
         response = {
             'public_key': node.wallet.public_key,
@@ -25,7 +25,7 @@ def create_keys():
     return jsonify(response), 500
 
 @app.route('/wallet', methods=[ 'GET' ])
-def load_keys():
+def load_keys() -> tuple[Response,int]:
     if node.load_keys():
         response = {
             'public_key': node.wallet.public_key,
@@ -38,7 +38,7 @@ def load_keys():
     return jsonify(response), 500
 
 @app.route('/balance', methods=[ 'GET' ])
-def get_balance():
+def get_balance() -> tuple[Response,int]:
     balance = node.get_balance()
     if balance is not None:
         response = {
@@ -53,17 +53,17 @@ def get_balance():
     return jsonify(response), 500
 
 @app.route('/transaction', methods=[ 'GET' ])
-def get_open_transactions():
+def get_open_transactions() -> tuple[Response,int]:
     open_transactions = node.get_open_transactions()
     dict_transactions = [ tx.to_ordered_dict() for tx in open_transactions ]
     return jsonify(dict_transactions), 200
 
 @app.route('/chain', methods=[ 'GET' ])
-def get_chain():
+def get_chain() -> tuple[Response,int]:
     return jsonify([ block.__dict__ for block in node.get_chain() ]), 200
 
 @app.route('/mine', methods=[ 'POST' ])
-def mine():
+def mine() -> tuple[Response,int]:
     block = node.mine()
     if block is not None:
         response = {
@@ -79,7 +79,7 @@ def mine():
     return jsonify(response), 500
 
 @app.route('/transaction', methods=[ 'POST' ])
-def add_transaction():
+def add_transaction() -> tuple[Response,int]:
     values = request.get_json()
     if not values:
         response = {
@@ -109,6 +109,27 @@ def add_transaction():
         'message': 'Creating a transaction failed'
     }
     return jsonify(response), 500
+
+@app.route('/node', methods=['POST'])
+def add_node() -> tuple[Response,int]:
+    values = request.get_json()
+    if not values:
+        response = {
+            'message': 'No data attached'
+        }
+        return jsonify(response), 400
+    if 'node' not in values:
+        response = {
+            'message': 'No node data found'
+        }
+        return jsonify(response), 400
+    node_value = values['node']
+    node.add_node(node_value)
+    response = {
+        'message': 'Node added successfully',
+        'all_nodes': node.get_nodes()
+    }
+    return jsonify(response), 201
 
 if __name__ == '__main__':
     node = Node()
