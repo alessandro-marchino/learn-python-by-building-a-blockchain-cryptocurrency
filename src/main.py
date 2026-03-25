@@ -131,6 +131,20 @@ def add_node() -> tuple[Response,int]:
     }
     return jsonify(response), 201
 
+@app.route('/node/<node_url>', methods=['DELETE'])
+def remove_node(node_url:str) -> tuple[Response,int]:
+    if node_url == '' or node_url is None:
+        response = {
+            'message': 'No node attached'
+        }
+        return jsonify(response), 400
+    node.remove_node(node_url)
+    response = {
+        'message': 'Node removed successfully',
+        'all_nodes': node.get_nodes()
+    }
+    return jsonify(response), 201
+
 if __name__ == '__main__':
     node = Node()
     app.run(port=5000)
