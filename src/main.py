@@ -145,6 +145,13 @@ def remove_node(node_url:str) -> tuple[Response,int]:
     }
     return jsonify(response), 201
 
+@app.route('/node', methods=['GET'])
+def get_nodes() -> tuple[Response,int]:
+    response = {
+        'all_nodes': node.get_nodes()
+    }
+    return jsonify(response), 201
+
 if __name__ == '__main__':
     node = Node()
     app.run(port=5000)
