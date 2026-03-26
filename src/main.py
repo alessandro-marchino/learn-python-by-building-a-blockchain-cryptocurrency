@@ -157,5 +157,10 @@ def get_nodes() -> tuple[Response,int]:
     return jsonify(response), 200
 
 if __name__ == '__main__':
-    node = Node()
-    app.run(port=5000)
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=5000)
+    args = parser.parse_args()
+
+    node = Node(args.port)
+    app.run(port=args.port)

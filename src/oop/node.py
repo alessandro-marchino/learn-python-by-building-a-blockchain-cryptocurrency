@@ -4,9 +4,10 @@ from oop.block import JsonableBlock
 from oop.transaction import Transaction
 
 class Node:
-    def __init__(self) -> None:
-        self.wallet = Wallet()
-        self.blockchain = Blockchain(self.wallet.public_key)
+    def __init__(self, node_id:int) -> None:
+        self.wallet = Wallet(node_id)
+        self.blockchain = Blockchain(self.wallet.public_key, node_id)
+        self.node_id = node_id
         pass
 
     def get_chain(self) -> list[JsonableBlock]:
@@ -21,13 +22,13 @@ class Node:
     def create_keys(self) -> bool:
         self.wallet.create_keys()
         if self.wallet.save_keys():
-            self.blockchain = Blockchain(self.wallet.public_key)
+            self.blockchain = Blockchain(self.wallet.public_key, self.node_id)
             return True
         return False
 
     def load_keys(self) -> bool:
         if self.wallet.load_keys():
-            self.blockchain = Blockchain(self.wallet.public_key)
+            self.blockchain = Blockchain(self.wallet.public_key, self.node_id)
             return True
         return False
 

@@ -10,11 +10,12 @@ from functools import reduce
 MINING_REWARD = 10
 
 class Blockchain:
-    def __init__(self, hosting_node_id:str|None) -> None:
+    def __init__(self, public_key:str|None, node_id:int) -> None:
         self.__chain:list[Block] = [ Block(0, '', [], -1, 0) ]
         self.__open_transactions:list[Transaction] = []
         self.__peer_nodes:set[str] = set()
-        self.hosting_node = hosting_node_id
+        self.hosting_node = public_key
+        self.node_id = node_id
         self.load_data()
 
     @property
@@ -31,7 +32,7 @@ class Blockchain:
     def load_data(self) -> None:
         """ Initialize blockchain + import transaction data from file."""
         try:
-            with open('blockchain.txt', mode='r') as f:
+            with open(f'blockchain-{self.node_id}.txt', mode='r') as f:
                 file_content = f.readlines()
                 tmp_blockchain = loads(file_content[0][:-1])
                 self.chain = [
@@ -53,7 +54,7 @@ class Blockchain:
 
     def save_data(self) -> None:
         try:
-            with open('blockchain.txt', mode='w') as f:
+            with open(f'blockchain-{self.node_id}.txt', mode='w') as f:
                 saveable_chain = [ jb.__dict__ for jb in [ JsonableBlock(block) for block in self.__chain ] ]
                 f.write(dumps(saveable_chain))
                 f.write('\n')
