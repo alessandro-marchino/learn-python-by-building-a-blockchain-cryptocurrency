@@ -153,4 +153,4 @@ class Blockchain:
         self.save_data()
 
     def get_peer_nodes(self) -> list[str]:
-        return list(self.__peer_nodes)
+        return sorted(self.__peer_nodes)

@@ -10,6 +10,10 @@ node: Node
 def get_ui() -> Response:
     return send_from_directory('ui', 'node.html')
 
+@app.route('/network', methods=[ 'GET' ])
+def get_network() -> Response:
+    return send_from_directory('ui', 'network.html')
+
 @app.route('/wallet', methods=[ 'POST' ])
 def create_keys() -> tuple[Response,int]:
     if node.create_keys():
@@ -150,7 +154,7 @@ def get_nodes() -> tuple[Response,int]:
     response = {
         'all_nodes': node.get_nodes()
     }
-    return jsonify(response), 201
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     node = Node()
