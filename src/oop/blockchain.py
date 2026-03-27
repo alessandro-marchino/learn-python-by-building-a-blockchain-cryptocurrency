@@ -5,6 +5,7 @@ from utility.hash_util import hash_block
 from utility.verification import Verification
 
 from json import dumps, loads
+import requests
 from functools import reduce
 
 MINING_REWARD = 10
@@ -105,6 +106,21 @@ class Blockchain:
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.__open_transactions.append(transaction)
+        for node in self.__peer_nodes:
+            url = f'http://{node}/broadcast/transaction'
+            try:
+                response = requests.post(url, json={
+                    'sender': self.hosting_node,
+                    'recipient': recipient,
+                    'amount': amount,
+                    'signature': signature
+                })
+                if response.status_code > 399:
+                    print('Transaction declined, needs resolving')
+                    return False
+            except requests.exceptions.ConnectionError:
+                continue
+
         self.save_data()
         return True
 
