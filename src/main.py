@@ -157,7 +157,7 @@ def get_nodes() -> tuple[Response,int]:
     return jsonify(response), 200
 
 # Broadcasts
-@app.route('/broadcast/transaction', method=[ 'POST' ])
+@app.route('/broadcast/transaction', methods=[ 'POST' ])
 def broadcast_transaction():
     values = request.get_json()
     if not values:
