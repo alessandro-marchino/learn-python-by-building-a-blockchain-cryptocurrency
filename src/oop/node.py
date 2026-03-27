@@ -44,6 +44,14 @@ class Node:
     def add_broadcast_transaction(self, sender:str, recipient:str, amount:float, signature:str) -> bool:
         return self.blockchain.add_transaction(sender, recipient, signature, amount, True)
 
+    def add_broadcast_block(self, block: dict) -> None:
+        if block['index'] == self.blockchain.chain[-1].index + 1:
+            self.blockchain.add_block(block)
+        elif block['index'] > self.blockchain.chain[-1].index:
+            pass
+        else:
+            raise ValueError('Blockchain seem to be shorter, block not added')
+
     def get_open_transactions(self) -> list[Transaction]:
         return self.blockchain.get_open_transactions()
 

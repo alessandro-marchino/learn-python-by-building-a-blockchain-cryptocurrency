@@ -184,6 +184,25 @@ def broadcast_transaction():
     }
     return jsonify(response), 500
 
+@app.route('/broadcast/block', methods=[ 'POST' ])
+def broadcast_block():
+    values = request.get_json()
+    if not values:
+        response = { 'message': 'No data found' }
+        return jsonify(response), 400
+    if 'block' not in values:
+        response = { 'message': 'Some data is missing' }
+        return jsonify(response), 400
+    node.add_broadcast_block(values['block'])
+
+    try:
+        node.add_broadcast_block(values['block'])
+        response = { 'message': 'Successfully added block' }
+        return jsonify(response), 200
+    except ValueError as err:
+        response = { 'message': err.args }
+        return jsonify(response), 409
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
