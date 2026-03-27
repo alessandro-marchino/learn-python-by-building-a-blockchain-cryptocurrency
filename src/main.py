@@ -156,6 +156,34 @@ def get_nodes() -> tuple[Response,int]:
     }
     return jsonify(response), 200
 
+# Broadcasts
+@app.route('/broadcast/transaction', method=[ 'POST' ])
+def broadcast_transaction():
+    values = request.get_json()
+    if not values:
+        response = { 'message': 'No data found' }
+        return jsonify(response), 400
+    required = [ 'sender', 'recipient', 'amount', 'signature' ]
+    if not all(key in values for key in required):
+        response = { 'message': 'Some data is missing' }
+        return jsonify(response), 400
+    success = node.add_broadcast_transaction(values['sender'], values['recipient'], values['amount'], values['signature'])
+    if success:
+        response = {
+            'message': 'Successfully added transaction',
+            'transaction': {
+                'sender': values['sender'],
+                'recipient': values['recipient'],
+                'amount': values['amount'],
+                'signature': values['signature']
+            }
+        }
+        return jsonify(response), 201
+    response = {
+        'message': 'Broadcasting a transaction failed'
+    }
+    return jsonify(response), 500
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()

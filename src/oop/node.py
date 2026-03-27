@@ -39,7 +39,10 @@ class Node:
         if self.wallet.public_key is None:
             return False, ''
         signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
-        return self.blockchain.add_transaction(recipient, signature, amount), signature
+        return self.blockchain.add_transaction(self.wallet.public_key, recipient, signature, amount), signature
+
+    def add_broadcast_transaction(self, sender:str, recipient:str, amount:float, signature:str) -> bool:
+        return self.blockchain.add_transaction(sender, recipient, signature, amount, True)
 
     def get_open_transactions(self) -> list[Transaction]:
         return self.blockchain.get_open_transactions()

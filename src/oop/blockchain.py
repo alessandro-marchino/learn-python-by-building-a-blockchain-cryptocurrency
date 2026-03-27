@@ -74,15 +74,16 @@ class Blockchain:
             nonce += 1
         return nonce
 
-    def get_balance(self)-> float | None:
-        if self.hosting_node is None:
+    def get_balance(self, sender:str|None=None)-> float | None:
+        participant = sender if sender is not None else self.hosting_node
+        if participant is None:
             return None
-        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == self.hosting_node ] for block in self.__chain ]
+        tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == participant ] for block in self.__chain ]
         open_tx_sender = [ tx.amount for tx in self.__open_transactions ]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_sender, 0.0)
 
-        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == self.hosting_node ] for block in self.__chain ]
+        tx_received = [ [ tx.amount for tx in block.transactions if tx.recipient == participant ] for block in self.__chain ]
         amount_received = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_received, 0.0)
 
         return amount_received - amount_sent
@@ -91,7 +92,7 @@ class Blockchain:
         """ Gets the last block of the blockchain."""
         return self.__chain[-1]
 
-    def add_transaction(self, recipient:str, signature:str, amount:float=1.0) -> bool:
+    def add_transaction(self, sender:str, recipient:str, signature:str, amount=1.0, is_receiving=False) -> bool:
         """
         Append a new value as well as the last transaction value to the blockchain.
 
@@ -100,26 +101,27 @@ class Blockchain:
             :recepient: The recipient of the transaction
             :amount: The amount sent
         """
-        if self.hosting_node is None:
+        if sender is None:
             return False
-        transaction = Transaction(self.hosting_node, recipient, signature, amount)
+        transaction = Transaction(sender, recipient, signature, amount)
         if not Verification.verify_transaction(transaction, self.get_balance):
             return False
         self.__open_transactions.append(transaction)
-        for node in self.__peer_nodes:
-            url = f'http://{node}/broadcast/transaction'
-            try:
-                response = requests.post(url, json={
-                    'sender': self.hosting_node,
-                    'recipient': recipient,
-                    'amount': amount,
-                    'signature': signature
-                })
-                if response.status_code > 399:
-                    print('Transaction declined, needs resolving')
-                    return False
-            except requests.exceptions.ConnectionError:
-                continue
+        if not is_receiving:
+            for node in self.__peer_nodes:
+                url = f'http://{node}/broadcast/transaction'
+                try:
+                    response = requests.post(url, json={
+                        'sender': sender,
+                        'recipient': recipient,
+                        'amount': amount,
+                        'signature': signature
+                    })
+                    if response.status_code > 399:
+                        print('Transaction declined, needs resolving')
+                        return False
+                except requests.exceptions.ConnectionError:
+                    continue
 
         self.save_data()
         return True
