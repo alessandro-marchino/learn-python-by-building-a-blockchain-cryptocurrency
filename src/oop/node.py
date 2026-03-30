@@ -59,9 +59,10 @@ class Node:
         block = values['block']
         if block['index'] == self.blockchain.chain[-1].index + 1:
             if not self.blockchain.add_block(block):
-                raise NetworkError('Block seems invalid', 500)
+                raise NetworkError('Block seems invalid', 409)
         elif block['index'] > self.blockchain.chain[-1].index:
-            pass
+            self.blockchain.resolve_conflicts = True
+            raise NetworkError('Blockchain seem to differ from local blockchain', 200)
         else:
             raise NetworkError('Blockchain seem to be shorter, block not added', 409)
 

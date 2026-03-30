@@ -69,6 +69,9 @@ def get_chain() -> tuple[Response,int]:
 
 @app.route('/mine', methods=[ 'POST' ])
 def mine() -> tuple[Response,int]:
+    if node.blockchain.resolve_conflicts:
+        response = { 'message': 'Resolve conflicts first, block not added!' }
+        return jsonify(response), 409
     block = node.mine()
     if block is not None:
         response = {

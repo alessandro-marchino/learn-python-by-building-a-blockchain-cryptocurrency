@@ -17,6 +17,7 @@ class Blockchain:
         self.__peer_nodes:set[str] = set()
         self.hosting_node = public_key
         self.node_id = node_id
+        self.resolve_conflicts = False
         self.load_data()
 
     @property
@@ -157,6 +158,8 @@ class Blockchain:
                 response = requests.post(url, json={ 'block': JsonableBlock(block).__dict__.copy() })
                 if response.status_code > 399:
                     print('Block declined, needs resolving')
+                    if response.status_code == 409:
+                        self.resolve_conflicts = True
             except requests.exceptions.ConnectionError:
                 continue
         return block
