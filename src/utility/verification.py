@@ -35,6 +35,7 @@ class Verification:
             sender_balance = get_balance(transaction.sender)
             if sender_balance is None:
                 return False
+            print(sender_balance, transaction.amount)
             return sender_balance >= transaction.amount and Wallet.verify_transaction(transaction)
         return Wallet.verify_transaction(transaction)
 

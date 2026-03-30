@@ -168,6 +168,15 @@ class Blockchain:
         if not proof_is_valid or not hashes_match:
             return False
         self.__chain.append(Block(block['index'], block['previous_hash'], transactions, block['proof'], block['timestamp']))
+        stored_transactions = self.__open_transactions[:]
+        for itx in block['transactions']:
+            for opentx in stored_transactions:
+                if opentx.sender == itx['sender'] and opentx.recipient == itx['recipient'] and opentx.amount == itx['amount'] and opentx.signature == itx['signature']:
+                    try:
+                        self.__open_transactions.remove(opentx)
+                    except ValueError:
+                        print('Item wal already removed')
+
         self.save_data()
         return True
 

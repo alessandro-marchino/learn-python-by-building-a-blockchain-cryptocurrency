@@ -48,7 +48,7 @@ class Node:
         required = [ 'sender', 'recipient', 'amount', 'signature' ]
         if not all(key in values for key in required):
             raise NetworkError('Some data is missing', 400)
-        if not self.blockchain.add_transaction(values['sender'], values['recipient'], values['amount'], values['signature'], True):
+        if not self.blockchain.add_transaction(values['sender'], values['recipient'], values['signature'], values['amount'], True):
             raise NetworkError('Broadcasting a transaction failed', 500)
 
     def add_broadcast_block(self, values: dict) -> None:
