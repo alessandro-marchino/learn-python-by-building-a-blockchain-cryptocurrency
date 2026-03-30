@@ -79,7 +79,7 @@ class Blockchain:
         if participant is None:
             return None
         tx_sender = [ [ tx.amount for tx in block.transactions if tx.sender == participant ] for block in self.__chain ]
-        open_tx_sender = [ tx.amount for tx in self.__open_transactions ]
+        open_tx_sender = [ tx.amount for tx in self.__open_transactions if tx.sender == participant ]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(lambda tx_sum, tx: tx_sum + sum(tx), tx_sender, 0.0)
 
@@ -151,15 +151,24 @@ class Blockchain:
 
         self.__open_transactions = []
         self.save_data()
+        for node in self.__peer_nodes:
+            url = f'http://{node}/broadcast/block'
+            try:
+                response = requests.post(url, json={ 'block': JsonableBlock(block).__dict__.copy() })
+                if response.status_code > 399:
+                    print('Block declined, needs resolving')
+            except requests.exceptions.ConnectionError:
+                continue
         return block
 
     def add_block(self, block: dict) -> bool:
         transactions = [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions'] ]
-        proof_is_valid = Verification.valid_proof(transactions, block['previous_hash'], block['proof'])
+        proof_is_valid = Verification.valid_proof(transactions[:-1], block['previous_hash'], block['proof'])
         hashes_match = hash_block(self.chain[-1]) == block['previous_hash']
         if not proof_is_valid or not hashes_match:
             return False
         self.__chain.append(Block(block['index'], block['previous_hash'], transactions, block['proof'], block['timestamp']))
+        self.save_data()
         return True
 
     def add_peer_node(self, node:str) -> None:

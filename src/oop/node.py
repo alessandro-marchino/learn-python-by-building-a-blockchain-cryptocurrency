@@ -2,6 +2,7 @@ from oop.wallet import Wallet
 from oop.blockchain import Blockchain
 from oop.block import JsonableBlock
 from oop.transaction import Transaction
+from oop.NetworkError import NetworkError
 
 class Node:
     def __init__(self, node_id:int) -> None:
@@ -41,16 +42,28 @@ class Node:
         signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
         return self.blockchain.add_transaction(self.wallet.public_key, recipient, signature, amount), signature
 
-    def add_broadcast_transaction(self, sender:str, recipient:str, amount:float, signature:str) -> bool:
-        return self.blockchain.add_transaction(sender, recipient, signature, amount, True)
+    def add_broadcast_transaction(self, values:dict):
+        if not values:
+            raise NetworkError('No data found', 400)
+        required = [ 'sender', 'recipient', 'amount', 'signature' ]
+        if not all(key in values for key in required):
+            raise NetworkError('Some data is missing', 400)
+        if not self.blockchain.add_transaction(values['sender'], values['recipient'], values['amount'], values['signature'], True):
+            raise NetworkError('Broadcasting a transaction failed', 500)
 
-    def add_broadcast_block(self, block: dict) -> None:
+    def add_broadcast_block(self, values: dict) -> None:
+        if not values:
+            raise NetworkError('No data found', 400)
+        if 'block' not in values:
+            raise NetworkError('Some data is missing', 400)
+        block = values['block']
         if block['index'] == self.blockchain.chain[-1].index + 1:
-            self.blockchain.add_block(block)
+            if not self.blockchain.add_block(block):
+                raise NetworkError('Block seems invalid', 500)
         elif block['index'] > self.blockchain.chain[-1].index:
             pass
         else:
-            raise ValueError('Blockchain seem to be shorter, block not added')
+            raise NetworkError('Blockchain seem to be shorter, block not added', 409)
 
     def get_open_transactions(self) -> list[Transaction]:
         return self.blockchain.get_open_transactions()

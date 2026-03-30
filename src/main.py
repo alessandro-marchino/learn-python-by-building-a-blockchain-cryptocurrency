@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 from oop.node import Node
+from oop.NetworkError import NetworkError
 
 app = Flask(__name__)
 CORS(app)
@@ -160,15 +161,8 @@ def get_nodes() -> tuple[Response,int]:
 @app.route('/broadcast/transaction', methods=[ 'POST' ])
 def broadcast_transaction():
     values = request.get_json()
-    if not values:
-        response = { 'message': 'No data found' }
-        return jsonify(response), 400
-    required = [ 'sender', 'recipient', 'amount', 'signature' ]
-    if not all(key in values for key in required):
-        response = { 'message': 'Some data is missing' }
-        return jsonify(response), 400
-    success = node.add_broadcast_transaction(values['sender'], values['recipient'], values['amount'], values['signature'])
-    if success:
+    try:
+        node.add_broadcast_transaction(values)
         response = {
             'message': 'Successfully added transaction',
             'transaction': {
@@ -179,29 +173,22 @@ def broadcast_transaction():
             }
         }
         return jsonify(response), 201
-    response = {
-        'message': 'Broadcasting a transaction failed'
-    }
-    return jsonify(response), 500
+    except NetworkError as err:
+        print(f'[ERROR] broadcast_transaction: {err.msg}')
+        response = { 'message': err.msg }
+        return jsonify(response), err.status_code
 
 @app.route('/broadcast/block', methods=[ 'POST' ])
 def broadcast_block():
     values = request.get_json()
-    if not values:
-        response = { 'message': 'No data found' }
-        return jsonify(response), 400
-    if 'block' not in values:
-        response = { 'message': 'Some data is missing' }
-        return jsonify(response), 400
-    node.add_broadcast_block(values['block'])
-
     try:
-        node.add_broadcast_block(values['block'])
+        node.add_broadcast_block(values)
         response = { 'message': 'Successfully added block' }
-        return jsonify(response), 200
-    except ValueError as err:
-        response = { 'message': err.args }
-        return jsonify(response), 409
+        return jsonify(response), 201
+    except NetworkError as err:
+        print(f'[ERROR] broadcast_block: {err.msg}')
+        response = { 'message': err.msg }
+        return jsonify(response), err.status_code
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
