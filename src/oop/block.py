@@ -10,6 +10,16 @@ class Block(Printable):
         self.transactions=transactions
         self.proof = proof
 
+    @staticmethod
+    def to_block(blk: dict) -> 'Block':
+        return Block(
+            blk['index'],
+            blk['previous_hash'],
+            [ Transaction.to_transaction(tx) for tx in blk['transactions'] ],
+            blk['proof'],
+            blk['timestamp']
+        )
+
 class JsonableBlock:
     def __init__(self, block:Block):
         self.index = block.index

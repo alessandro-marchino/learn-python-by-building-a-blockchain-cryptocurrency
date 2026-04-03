@@ -37,17 +37,10 @@ class Blockchain:
             with open(f'blockchain-{self.node_id}.txt', mode='r') as f:
                 file_content = f.readlines()
                 tmp_blockchain = loads(file_content[0][:-1])
-                self.chain = [
-                    Block(
-                        block['index'],
-                        block['previous_hash'],
-                        [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions'] ],
-                        block['proof'],
-                        block['timestamp'])
-                    for block in tmp_blockchain ]
+                self.chain = [ Block.to_block(block) for block in tmp_blockchain ]
 
                 tmp_transactions = loads(file_content[1][:-1])
-                self.__open_transactions = [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in tmp_transactions ]
+                self.__open_transactions = [ Transaction.to_transaction(tx) for tx in tmp_transactions ]
 
                 peer_nodes = loads(file_content[2])
                 self.__peer_nodes = set(peer_nodes)
@@ -112,14 +105,9 @@ class Blockchain:
             for node in self.__peer_nodes:
                 url = f'http://{node}/broadcast/transaction'
                 try:
-                    response = requests.post(url, json={
-                        'sender': sender,
-                        'recipient': recipient,
-                        'amount': amount,
-                        'signature': signature
-                    })
+                    response = requests.post(url, json=transaction.__dict__)
                     if response.status_code > 399:
-                        print('Transaction declined, needs resolving')
+                        print(f'Transaction declined, needs resolving\nURL: {url}, tx: {transaction.__dict__}')
                         return False
                 except requests.exceptions.ConnectionError:
                     continue
@@ -155,9 +143,10 @@ class Blockchain:
         for node in self.__peer_nodes:
             url = f'http://{node}/broadcast/block'
             try:
-                response = requests.post(url, json={ 'block': JsonableBlock(block).__dict__.copy() })
+                json_data = JsonableBlock(block).__dict__.copy()
+                response = requests.post(url, json={ 'block': json_data })
                 if response.status_code > 399:
-                    print('Block declined, needs resolving')
+                    print(f'Block declined, needs resolving\nURL: {url}, status: {response.status_code}')
                     if response.status_code == 409:
                         self.resolve_conflicts = True
             except requests.exceptions.ConnectionError:
@@ -165,16 +154,16 @@ class Blockchain:
         return block
 
     def add_block(self, block: dict) -> bool:
-        transactions = [ Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions'] ]
-        proof_is_valid = Verification.valid_proof(transactions[:-1], block['previous_hash'], block['proof'])
+        new_block = Block.to_block(block)
+        proof_is_valid = Verification.valid_proof(new_block.transactions[:-1], block['previous_hash'], block['proof'])
         hashes_match = hash_block(self.chain[-1]) == block['previous_hash']
         if not proof_is_valid or not hashes_match:
             return False
-        self.__chain.append(Block(block['index'], block['previous_hash'], transactions, block['proof'], block['timestamp']))
+        self.__chain.append(new_block)
         stored_transactions = self.__open_transactions[:]
         for itx in block['transactions']:
             for opentx in stored_transactions:
-                if opentx.sender == itx['sender'] and opentx.recipient == itx['recipient'] and opentx.amount == itx['amount'] and opentx.signature == itx['signature']:
+                if opentx.is_equal(itx):
                     try:
                         self.__open_transactions.remove(opentx)
                     except ValueError:
@@ -182,6 +171,28 @@ class Blockchain:
 
         self.save_data()
         return True
+
+    def resolve(self) -> bool:
+        winner_chain = self.chain
+        replace = False
+        for node in self.__peer_nodes:
+            try:
+                response = requests.get(f'http://{node}/chain')
+                node_chain = response.json()
+                node_chain = [ Block.to_block(block) for block in node_chain ]
+                node_chain_length = len(node_chain)
+                local_chain_length = len(winner_chain)
+                if node_chain_length > local_chain_length and Verification.verify_chain(node_chain):
+                    replace = True
+                    winner_chain = node_chain
+            except requests.exceptions.ConnectionError:
+                continue
+        self.resolve_conflicts = False
+        if replace:
+            self.chain = winner_chain
+            self.__open_transactions = []
+            self.save_data()
+        return replace
 
     def add_peer_node(self, node:str) -> None:
         """Adds the new node to the peer node set.

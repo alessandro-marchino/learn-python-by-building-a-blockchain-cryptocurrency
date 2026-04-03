@@ -2,6 +2,9 @@ from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 from oop.node import Node
 from oop.NetworkError import NetworkError
+import os
+
+os.environ['no_proxy'] = '*'
 
 app = Flask(__name__)
 CORS(app)
@@ -85,6 +88,15 @@ def mine() -> tuple[Response,int]:
         'wallet_set_up': node.wallet.public_key != None
     }
     return jsonify(response), 500
+
+@app.route('/resolve-conflicts', methods=[ 'POST' ])
+def resolve_conflicts() -> tuple[Response,int]:
+    replaced = node.resolve_conflicts()
+    if replaced:
+        message = { 'message': 'Chain was replaced' }
+    else:
+        message = { 'message': 'Local chain kept' }
+    return jsonify(message), 200
 
 @app.route('/transaction', methods=[ 'POST' ])
 def add_transaction() -> tuple[Response,int]:

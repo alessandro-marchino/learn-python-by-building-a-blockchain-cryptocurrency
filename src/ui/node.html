@@ -149,6 +149,7 @@
         <div class="col">
           <button class="btn btn-primary" @click="onLoadData">{{ view === 'chain' ? 'Load Blockchain' : 'Load Transactions' }}</button>
           <button v-if="view === 'chain' && wallet" class="btn btn-success" @click="onMine">Mine Coins</button>
+          <button v-if="view === 'chain' && wallet" class="btn btn-warning" @click="onResolve">Resolve Conflicts</button>
         </div>
       </div>
       <div class="row">
@@ -207,7 +208,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/axios@1.14.0/dist/axios.min.js"></script>
   <script>
     new Vue({
       el: '#app',
@@ -295,6 +296,16 @@
           try {
             const res = await axios.post('/mine');
             this.funds = res.data.funds;
+            this.success = res.data.message;
+          } catch(e) {
+            this.error = e.response.data.message;
+          }
+        },
+        onResolve: async function() {
+          this.success = null;
+          this.error = null
+          try {
+            const res = await axios.post('/resolve-conflicts');
             this.success = res.data.message;
           } catch(e) {
             this.error = e.response.data.message;

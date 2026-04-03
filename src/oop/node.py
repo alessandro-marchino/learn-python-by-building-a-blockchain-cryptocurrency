@@ -77,3 +77,6 @@ class Node:
 
     def get_nodes(self) -> list[str]:
         return self.blockchain.get_peer_nodes()
+
+    def resolve_conflicts(self) -> bool:
+        return self.blockchain.resolve()
