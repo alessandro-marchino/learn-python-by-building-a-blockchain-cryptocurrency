@@ -6,8 +6,9 @@ import binascii
 
 from oop.transaction import Transaction
 
+
 class Wallet:
-    def __init__(self, node_id:int) -> None:
+    def __init__(self, node_id: int) -> None:
         self.private_key = None
         self.public_key = None
         self.node_id = node_id
@@ -44,24 +45,33 @@ class Wallet:
         private_key = RSA.generate(1024, Crypto.Random.new().read)
         public_key = private_key.publickey()
         return (
-            binascii.hexlify(private_key.exportKey(format='DER')).decode('ascii'),
-            binascii.hexlify(public_key.exportKey(format='DER')).decode('ascii')
+            Wallet.key_to_str(private_key),
+            Wallet.key_to_str(public_key)
         )
 
-    def sign_transaction(self, sender:str, recipient:str, amount:float) -> str:
+    @staticmethod
+    def key_to_str(key: RSA.RsaKey) -> str:
+        return binascii.hexlify(key.exportKey(format='DER')).decode('ascii')
+
+    def sign_transaction(self,
+                         sender: str,
+                         recipient: str,
+                         amount: float) -> str:
         if self.private_key is None:
             return ''
 
-        signer = PKCS1_v1_5.new(RSA.import_key(binascii.unhexlify(self.private_key)))
-        payload = SHA256.new((str(sender) + str(recipient) + str(amount)).encode('utf8'))
+        signer = PKCS1_v1_5.new(RSA.import_key(
+            binascii.unhexlify(self.private_key)))
+        payload = SHA256.new((sender + recipient + str(amount)).encode('utf8'))
         signature = signer.sign(payload)
         return binascii.hexlify(signature).decode('ascii')
 
     @staticmethod
-    def verify_transaction(tx:Transaction) -> bool:
+    def verify_transaction(tx: Transaction) -> bool:
         if tx.sender == 'MINING':
             return True
         pub = RSA.import_key(binascii.unhexlify(tx.sender))
         verifier = PKCS1_v1_5.new(pub)
-        payload = SHA256.new((str(tx.sender) + str(tx.recipient) + str(tx.amount)).encode('utf8'))
+        payload = SHA256.new((tx.sender + tx.recipient + str(tx.amount))
+                             .encode('utf8'))
         return verifier.verify(payload, binascii.unhexlify(tx.signature))

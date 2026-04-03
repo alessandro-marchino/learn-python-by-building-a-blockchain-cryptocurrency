@@ -10,16 +10,19 @@ app = Flask(__name__)
 CORS(app)
 node: Node
 
-@app.route('/', methods=[ 'GET' ])
+
+@app.route('/', methods=['GET'])
 def get_ui() -> Response:
     return send_from_directory('ui', 'node.html')
 
-@app.route('/network', methods=[ 'GET' ])
+
+@app.route('/network', methods=['GET'])
 def get_network() -> Response:
     return send_from_directory('ui', 'network.html')
 
-@app.route('/wallet', methods=[ 'POST' ])
-def create_keys() -> tuple[Response,int]:
+
+@app.route('/wallet', methods=['POST'])
+def create_keys() -> tuple[Response, int]:
     if node.create_keys():
         response = {
             'public_key': node.wallet.public_key,
@@ -27,26 +30,24 @@ def create_keys() -> tuple[Response,int]:
             'funds': node.get_balance()
         }
         return jsonify(response), 201
-    response = {
-        'message': 'Saving the keys failed'
-    }
+    response = {'message': 'Saving the keys failed'}
     return jsonify(response), 500
 
-@app.route('/wallet', methods=[ 'GET' ])
-def load_keys() -> tuple[Response,int]:
+
+@app.route('/wallet', methods=['GET'])
+def load_keys() -> tuple[Response, int]:
     if node.load_keys():
         response = {
             'public_key': node.wallet.public_key,
             'funds': node.get_balance()
         }
         return jsonify(response), 200
-    response = {
-        'message': 'Loading the keys failed'
-    }
+    response = {'message': 'Loading the keys failed'}
     return jsonify(response), 500
 
-@app.route('/balance', methods=[ 'GET' ])
-def get_balance() -> tuple[Response,int]:
+
+@app.route('/balance', methods=['GET'])
+def get_balance() -> tuple[Response, int]:
     balance = node.get_balance()
     if balance is not None:
         response = {
@@ -56,24 +57,27 @@ def get_balance() -> tuple[Response,int]:
         return jsonify(response), 200
     response = {
         'message': 'Loading balance failed',
-        'wallet_set_up': node.wallet.public_key != None
+        'wallet_set_up': node.wallet.public_key is not None
     }
     return jsonify(response), 500
 
-@app.route('/transaction', methods=[ 'GET' ])
-def get_open_transactions() -> tuple[Response,int]:
+
+@app.route('/transaction', methods=['GET'])
+def get_open_transactions() -> tuple[Response, int]:
     open_transactions = node.get_open_transactions()
-    dict_transactions = [ tx.to_ordered_dict() for tx in open_transactions ]
+    dict_transactions = [tx.to_ordered_dict() for tx in open_transactions]
     return jsonify(dict_transactions), 200
 
-@app.route('/chain', methods=[ 'GET' ])
-def get_chain() -> tuple[Response,int]:
-    return jsonify([ block.__dict__ for block in node.get_chain() ]), 200
 
-@app.route('/mine', methods=[ 'POST' ])
-def mine() -> tuple[Response,int]:
+@app.route('/chain', methods=['GET'])
+def get_chain() -> tuple[Response, int]:
+    return jsonify([block.__dict__ for block in node.get_chain()]), 200
+
+
+@app.route('/mine', methods=['POST'])
+def mine() -> tuple[Response, int]:
     if node.blockchain.resolve_conflicts:
-        response = { 'message': 'Resolve conflicts first, block not added!' }
+        response = {'message': 'Resolve conflicts first, block not added!'}
         return jsonify(response), 409
     block = node.mine()
     if block is not None:
@@ -85,34 +89,34 @@ def mine() -> tuple[Response,int]:
         return jsonify(response), 201
     response = {
         'message': 'Adding a block failed',
-        'wallet_set_up': node.wallet.public_key != None
+        'wallet_set_up': node.wallet.public_key is not None
     }
     return jsonify(response), 500
 
-@app.route('/resolve-conflicts', methods=[ 'POST' ])
-def resolve_conflicts() -> tuple[Response,int]:
+
+@app.route('/resolve-conflicts', methods=['POST'])
+def resolve_conflicts() -> tuple[Response, int]:
     replaced = node.resolve_conflicts()
     if replaced:
-        message = { 'message': 'Chain was replaced' }
+        message = {'message': 'Chain was replaced'}
     else:
-        message = { 'message': 'Local chain kept' }
+        message = {'message': 'Local chain kept'}
     return jsonify(message), 200
 
-@app.route('/transaction', methods=[ 'POST' ])
-def add_transaction() -> tuple[Response,int]:
+
+@app.route('/transaction', methods=['POST'])
+def add_transaction() -> tuple[Response, int]:
     values = request.get_json()
     if not values:
-        response = {
-            'message': 'No data found'
-        }
+        response = {'message': 'No data found'}
         return jsonify(response), 400
-    required_fields = [ 'recipient', 'amount' ]
+    required_fields = ['recipient', 'amount']
     if not all(field in values for field in required_fields):
-        response = {
-            'message': 'Required data is missing'
-        }
+        response = {'message': 'Required data is missing'}
         return jsonify(response), 400
-    result, signature = node.add_transaction(values['recipient'], values['amount'])
+    result, signature = node.add_transaction(
+        values['recipient'],
+        values['amount'])
     if result:
         response = {
             'message': 'Successfully added transaction',
@@ -125,23 +129,18 @@ def add_transaction() -> tuple[Response,int]:
             'funds': node.get_balance()
         }
         return jsonify(response), 201
-    response = {
-        'message': 'Creating a transaction failed'
-    }
+    response = {'message': 'Creating a transaction failed'}
     return jsonify(response), 500
 
+
 @app.route('/node', methods=['POST'])
-def add_node() -> tuple[Response,int]:
+def add_node() -> tuple[Response, int]:
     values = request.get_json()
     if not values:
-        response = {
-            'message': 'No data attached'
-        }
+        response = {'message': 'No data attached'}
         return jsonify(response), 400
     if 'node' not in values:
-        response = {
-            'message': 'No node data found'
-        }
+        response = {'message': 'No node data found'}
         return jsonify(response), 400
     node_value = values['node']
     node.add_node(node_value)
@@ -151,12 +150,11 @@ def add_node() -> tuple[Response,int]:
     }
     return jsonify(response), 201
 
+
 @app.route('/node/<node_url>', methods=['DELETE'])
-def remove_node(node_url:str) -> tuple[Response,int]:
+def remove_node(node_url: str) -> tuple[Response, int]:
     if node_url == '' or node_url is None:
-        response = {
-            'message': 'No node attached'
-        }
+        response = {'message': 'No node attached'}
         return jsonify(response), 400
     node.remove_node(node_url)
     response = {
@@ -165,15 +163,15 @@ def remove_node(node_url:str) -> tuple[Response,int]:
     }
     return jsonify(response), 201
 
+
 @app.route('/node', methods=['GET'])
-def get_nodes() -> tuple[Response,int]:
-    response = {
-        'all_nodes': node.get_nodes()
-    }
+def get_nodes() -> tuple[Response, int]:
+    response = {'all_nodes': node.get_nodes()}
     return jsonify(response), 200
 
+
 # Broadcasts
-@app.route('/broadcast/transaction', methods=[ 'POST' ])
+@app.route('/broadcast/transaction', methods=['POST'])
 def broadcast_transaction():
     values = request.get_json()
     try:
@@ -190,20 +188,22 @@ def broadcast_transaction():
         return jsonify(response), 201
     except NetworkError as err:
         print(f'[ERROR] broadcast_transaction: {err.msg}')
-        response = { 'message': err.msg }
+        response = {'message': err.msg}
         return jsonify(response), err.status_code
 
-@app.route('/broadcast/block', methods=[ 'POST' ])
+
+@app.route('/broadcast/block', methods=['POST'])
 def broadcast_block():
     values = request.get_json()
     try:
         node.add_broadcast_block(values)
-        response = { 'message': 'Successfully added block' }
+        response = {'message': 'Successfully added block'}
         return jsonify(response), 201
     except NetworkError as err:
         print(f'[ERROR] broadcast_block: {err.msg}')
-        response = { 'message': err.msg }
+        response = {'message': err.msg}
         return jsonify(response), err.status_code
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

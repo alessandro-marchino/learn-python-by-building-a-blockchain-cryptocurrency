@@ -1,0 +1,244 @@
+{
+  "info": {
+    "_postman_id": "6bafb73b-21d5-4f78-8f69-c6ceaaf30381",
+    "name": "UDEMY/learn-python-by-building-a-blockchain-cryptocurrency",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29911340"
+  },
+  "item": [
+    {
+      "name": "/chain",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/chain",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chain"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/mine",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/mine",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "mine"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/wallet",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/wallet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "wallet"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/balance",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/balance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "balance"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/wallet",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/wallet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "wallet"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/transaction",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"recipient\": \"Manuel\",\r\n    \"amount\": 1.5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/transaction",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/transaction",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/node",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/node",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "node"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/node",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"node\": \"localhost:5002\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/node",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "node"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/node/:node_url",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"node\": \"localhost:5002\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/node/:node_url",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "node",
+            ":node_url"
+          ],
+          "variable": [
+            {
+              "key": "node_url",
+              "value": "localhost:5002"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    }
+  ]
+}

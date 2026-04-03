@@ -1,7 +1,9 @@
 import json
 import pickle
 
-# 1) Write a short Python script which queries the user for input (infinite loop with exit possibility) and writes the input to a file.
+
+# 1) Write a short Python script which queries the user for input (infinite
+#    loop with exit possibility) and writes the input to a file.
 def objective1():
     while True:
         print('Give an input (q to exit): ')
@@ -11,7 +13,9 @@ def objective1():
         with open('assignment-06-1.txt', 'a') as f:
             f.write(f'{user_input}\n')
 
-# 2) Add another option to your user interface: The user should be able to output the data stored in the file in the terminal.
+
+# 2) Add another option to your user interface: The user should be able to
+#     output the data stored in the file in the terminal.
 def objective2():
     while True:
         print('Give an input: ')
@@ -27,7 +31,9 @@ def objective2():
             with open('assignment-06-2.txt', 'a') as f:
                 f.write(f'{user_input}\n')
 
-# 3) Store user input in a list (instead of directly adding it to the file) and write that list to the file – both with pickle and json.
+
+# 3) Store user input in a list (instead of directly adding it to the file)
+#    and write that list to the file – both with pickle and json.
 def objective3():
     data = []
     while True:
@@ -45,6 +51,7 @@ def objective3():
                 f.write(json.dumps(data))
             with open('assignment-06-3.pickle', 'wb') as f:
                 f.write(pickle.dumps(data))
+
 
 # 4) Adjust the logic to load the file content to work with pickled/ json data.
 def objective4():
@@ -69,5 +76,6 @@ def objective4():
                 f.write(json.dumps(data_json))
             with open('assignment-06-3.pickle', 'wb') as f:
                 f.write(pickle.dumps(data_pickle))
+
 
 objective4()
